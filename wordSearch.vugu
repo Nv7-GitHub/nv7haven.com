@@ -1,9 +1,13 @@
-<div>
-  <h1 align="center">This page is under construction.</h1>
+<div class="container text-center mt-3">
+  <h1>This page is under construction and anything you see below here is still in development.</h1>
+  <vgform:Textarea :Value='vgform.StringPtrDefault(&c.BoardText, "")' class="form-control"></vgform:Textarea>
+  <div vg-content="c.BoardText"></div>
 </div>
 
 <script type="application/x-go">
-type WordSearch struct {
+import "github.com/vugu/vugu/vgform"
 
+type WordSearch struct {
+  BoardText string `vugu:"data"`
 }
 </script>
