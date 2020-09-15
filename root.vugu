@@ -22,12 +22,12 @@
     </div>
   </nav>
 
-  <div vg-if='c.Open == ""' class="container text-center">
+  <div vg-if='c.Open == ""' class="container text-center mt-3">
     <h1>Nv7's Projects</h1>
-    Welcome to Nv7's Projects! This is where Nv7 keeps his programs!
+    <p class="lead">Welcome to Nv7's Projects! This is where Nv7 keeps his programs!
     Currently we have a word search solver, but there may be more coming soon!
     Also, this description will hopefully have more in the future.
-    Thank you for checking out Nv7's Projects and be sure to check out some of the projects.
+    Thank you for checking out Nv7's Projects and be sure to check out some of the projects.</p>
   </div>
   <main:WordSearch vg-if='c.Open == "WordSearch"'></main:WordSearch>
 </div>
