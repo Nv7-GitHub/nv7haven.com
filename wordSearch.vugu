@@ -30,8 +30,6 @@
 <script type="application/x-go">
 import "github.com/vugu/vugu/vgform"
 
-// add class "table-primary" to <td> tag to highlight
-
 type WordSearch struct {
   BoardText string `vugu:"data"`
   BoardCalculated bool `vugu:"data"`
@@ -39,6 +37,7 @@ type WordSearch struct {
   BoardColors [][]bool `vugu:"data"`
   Word string
   CouldntFind bool `vugu:"data"`
+  WordPoses [][]int
 }
 
 func (c *WordSearch) ParseBoard() {
@@ -52,15 +51,21 @@ func (c *WordSearch) ParseBoard() {
 
 func (c *WordSearch) GetColor(x, y int) string{
   if c.BoardColors[x][y] {
-    return "table-primary"
+    return "table-success"
   }
   return ""
 }
 
 func (c *WordSearch) FindWord() {
-  wordposes := findWord(c.Board, c.Word)
-  if wordposes != nil {
-    for _, wordpos := range wordposes {
+  if c.WordPoses != nil {
+    for _, wordpos := range c.WordPoses {
+      c.BoardColors[wordpos[0]][wordpos[1]] = false
+    }
+  }
+
+  c.WordPoses = findWord(c.Board, c.Word)
+  if c.WordPoses != nil {
+    for _, wordpos := range c.WordPoses {
       c.BoardColors[wordpos[0]][wordpos[1]] = true
     }
   } else {
