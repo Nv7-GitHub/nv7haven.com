@@ -1,18 +1,17 @@
 <div class="container text-center mt-3">
   <h1>WordSearch</h1>
-  <p class="lead">This is a word search solver made by Nv7! If you want, you can find the source code in <a href="https://github.com/Nv7-GitHub/nv7-github.github.io/blob/master/wordSearch.go" target="_blank">on GitHub</a>!</p>
+  <p class="lead">
+    This is a word search solver made by Nv7! If you want, you can find the source code in
+    <a href="https://github.com/Nv7-GitHub/nv7-github.github.io/blob/master/wordSearch.go" target="_blank">on GitHub</a>
+    and some example word searcges
+    <a href="https://github.com/Nv7-GitHub/nv7-github.github.io/blob/master/wordSearch.md" target="_blank">here</a>!
+  </p>
 
   <vgform:Textarea :Value='vgform.StringPtrDefault(&c.BoardText, "")' class="form-control" vg-if="!c.BoardCalculated"></vgform:Textarea>
   <button class="btn btn-primary" @click="c.ParseBoard()" vg-if="!c.BoardCalculated">Read Board</button>
 
   <vgform:Input :Value='vgform.StringPtrDefault(&c.Word, "")' class="form-control" vg-if="c.BoardCalculated"></vgform:Input>
   <button class="btn btn-primary" @click="c.FindWord()" vg-if="c.BoardCalculated">Find Word</button>
-
-  <table class="table" vg-if="c.BoardCalculated">
-    <tr vg-for="x, row := range c.Board">
-      <td vg-for="y, char := range row" vg-content="string(char)" :class="c.GetColor(x, y)"></td>
-    </tr>
-  </table>
 
   <div vg-if='c.CouldntFind' class="alert alert-danger" role="alert">
       <h4 class="alert-heading">
@@ -22,6 +21,14 @@
         </button>
       </h4>
       <p>Sorry! We couldn't find that word. Maybe you made a typo?</p>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table" vg-if="c.BoardCalculated">
+      <tr vg-for="x, row := range c.Board">
+        <td vg-for="y, char := range row" vg-content="string(char)" :class="c.GetColor(x, y)"></td>
+      </tr>
+    </table>
   </div>
 
   <button vg-if="c.BoardCalculated" @click="c.BoardCalculated = false" class="btn btn-danger">Reset</button>
