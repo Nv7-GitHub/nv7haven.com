@@ -6,6 +6,8 @@ import (
 
 var board [][]rune
 var words []string
+var thing string
+var ree string
 
 // offsets are all the neighbors of a given area
 var offsets = [][]int{
