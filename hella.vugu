@@ -32,7 +32,7 @@ func (c *Hella) Calculate(ee vugu.EventEnv) {
   ee.Lock()
   c.Loading = true
   ee.UnlockRender()
-  time.Sleep(time.Second/2) // TODO: Replace with something better
+  time.Sleep(time.Millisecond * 15) // TODO: Replace with something better
 
   doc, _ := prose.NewDocument(c.Input)
   c.Output = c.Input
