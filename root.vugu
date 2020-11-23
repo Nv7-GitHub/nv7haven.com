@@ -30,8 +30,7 @@
 
   <div vg-if='c.Open == ""' class="container text-center mt-3">
     <h1>Nv7's Projects</h1>
-    <p class="lead">Welcome to Nv7's Projects! This is where Nv7 keeps his programs!
-    Currently we have a word search solver, but there may be more coming soon!
+    <p class="lead">Welcome to Nv7's Projects! This is where Nv7 keeps all of his fun or interesting programs! You can check them out by pressing the dropdown in the top!
     This page is being rendered via
     <a @click='event.PreventDefault();c.ShowWasm=!c.ShowWasm' href="https://webassembly.org/">WebAssembly</a>,
     and written in
