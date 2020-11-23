@@ -15,10 +15,10 @@
 <script type="application/x-go">
 import (
   "fmt"
-  "strings"
-  "time"
+  "net/url"
+  "net/http"
+  "io/ioutil"
 
-  "github.com/jdkato/prose/v2"
   "github.com/vugu/vugu/vgform"
 )
 
@@ -32,35 +32,21 @@ func (c *Hella) Calculate(ee vugu.EventEnv) {
   ee.Lock()
   c.Loading = true
   ee.UnlockRender()
-  time.Sleep(time.Millisecond * 15) // TODO: Replace with something better
-
-  doc, _ := prose.NewDocument(c.Input)
-  c.Output = c.Input
-
-  done := []string{}
-
-  // Iterate over the doc's tokens:
-  for _, tok := range doc.Tokens() {
-    if tok.Tag == "JJ" {
-      if !(isIn(tok.Tag, done)) {
-        done = append(done, tok.Tag)
-        c.Output = strings.Replace(c.Output, tok.Text, "hella-" + tok.Text, -1)
-      }
-    }
+  
+  res, err := http.Get("https://api.nv7haven.tk/hella/" + url.PathEscape(c.Input))
+  if err != nil {
+    panic(err)
   }
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  if err != nil {
+    panic(err)
+  }
+  c.Output = string(output)
 
   ee.Lock()
   c.Loading = false
   c.Input = ""
   ee.UnlockRender()
-}
-
-func isIn(a string, list []string) bool {
-    for _, b := range list {
-        if b == a {
-            return true
-        }
-    }
-    return false
 }
 </script>
