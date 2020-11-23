@@ -4,6 +4,18 @@ import (
 	"strings"
 )
 
+const exampleBoard = `xymbitackkj
+kxfyofasokd
+sxtmttcbmwh
+rranatbspkh
+htotcdwlzor
+oeptvvzopif
+rkemcsgjndn
+ssecqacizlw
+eahcfxrbkyk
+cbslmqxtrla
+`
+
 var board [][]rune
 var words []string
 

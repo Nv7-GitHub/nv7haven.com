@@ -1,10 +1,22 @@
 <div class="container text-center mt-3">
   <h1>WordSearch</h1>
-  <p class="lead">
+  <p class="lead" vg-if="!c.OverrideMessage">
     This is a word search solver made by Nv7! If you want, you can find the source code in
     <a href="https://github.com/Nv7-GitHub/nv7haven.tk/blob/master/wordSearch.go" target="_blank">on GitHub</a>
     and some example word searches
-    <a href="https://github.com/Nv7-GitHub/nv7haven.tk/blob/master/wordSearch.md" target="_blank">here</a>!
+    <a href="#" @click="c.LoadExample()">here</a>!
+  </p>
+  <p class="lead" vg-if="c.OverrideMessage">
+    This is a sample board! The words on this board are
+    <ul vg-if="c.OverrideMessage" style="text-align: left;">
+      <li>cow</li>
+      <li>tomato</li>
+      <li>tractor</li>
+      <li>horse</li>
+      <li>sheep</li>
+      <li>basket</li>
+      <li>cat</li>
+    </ul>
   </p>
 
   <vgform:Textarea :Value='vgform.StringPtrDefault(&c.BoardText, "")' class="form-control" vg-if="!c.BoardCalculated"></vgform:Textarea>
@@ -31,7 +43,7 @@
     </table>
   </div>
 
-  <button vg-if="c.BoardCalculated" @click="c.BoardCalculated = false" class="btn btn-danger">Reset</button>
+  <button vg-if="c.BoardCalculated" @click="c.Reset()" class="btn btn-danger">Reset</button>
 </div>
 
 <script type="application/x-go">
@@ -45,6 +57,7 @@ type WordSearch struct {
   Word string
   CouldntFind bool `vugu:"data"`
   WordPoses [][]int
+  OverrideMessage bool `vugu:"data"`
 }
 
 func (c *WordSearch) ParseBoard() {
@@ -54,6 +67,17 @@ func (c *WordSearch) ParseBoard() {
   for i := range c.BoardColors {
     c.BoardColors[i] = make([]bool, len(c.Board[i]))
   }
+}
+
+func (c *WordSearch) Reset() {
+  c.BoardCalculated = false
+  c.OverrideMessage = false
+}
+
+func (c *WordSearch) LoadExample() {
+  c.OverrideMessage = true
+  c.BoardText = exampleBoard
+  c.ParseBoard()
 }
 
 func (c *WordSearch) GetColor(x, y int) string{
