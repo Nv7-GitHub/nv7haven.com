@@ -1,0 +1,1 @@
+GOOS=js GOARCH=wasm go build -ldflags="-w -s" -o docs/main.wasm
