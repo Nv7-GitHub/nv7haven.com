@@ -14,8 +14,13 @@
           <li class="nav-item">
             <a :class='"nav-link " + c.isOpen("")' @click='c.Open = ""'>Home</a>
           </li>
-          <li class='nav-item'>
-            <a :class='"nav-link " + c.isOpen("WordSearch")' @click='c.Open = "WordSearch"'>WordSearch</a>
+          <li :class='"dropdown nav-item " + c.isOpen("!")'>
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Nv7's Projects
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" @click='c.Open = "WordSearch"'>WordSearch</a>
+            </div>
           </li>
         </ul>
       </nav>
@@ -68,7 +73,9 @@ type Root struct {
 }
 
 func (c *Root) isOpen(component string) string {
-  if component == c.Open {
+  if component == "" && c.Open == "" {
+    return "active"
+  } else if component != "" && c.Open != ""  {
     return "active"
   }
   return ""
