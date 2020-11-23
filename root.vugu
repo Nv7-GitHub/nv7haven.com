@@ -20,6 +20,7 @@
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item" @click='c.Open = "WordSearch"'>WordSearch</a>
+              <a class="dropdown-item" @click='c.Open = "Hella"'>Hella</a>
             </div>
           </li>
         </ul>
@@ -61,6 +62,7 @@
     </div>
   </div>
   <main:WordSearch vg-if='c.Open == "WordSearch"'></main:WordSearch>
+  <main:Hella vg-if='c.Open == "Hella"'></main:Hella>
 </div>
 
 <script type="application/x-go">

@@ -1,0 +1,66 @@
+<div class="container text-center mt-3">
+  <h1>Hella</h1>
+  <p class="lead">
+    Hella is inspired by an episode of South Park in which Cartman replaces adds "hella-" to the start of all adjectives. Wondering if I could code that, I used a NLP library to identify adjectives and add "hella-" to the start. 
+    In this program is using a go library called <a href="https://github.com/jdkato/prose">prose</a>.
+  </p>
+
+  <vgform:Textarea :Value='vgform.StringPtrDefault(&c.Input, "")' class="form-control"></vgform:Textarea>
+  <br>
+  <p vg-content="c.Output" vg-if='c.Output != ""'></p>
+  <button class="btn btn-primary" @click="go c.Calculate(event.EventEnv())">Hella-ify!</button>
+  <img style="position: absolute; top: 50%; left: 50%;" src="https://cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif" vg-if="c.Loading">
+</div>
+
+<script type="application/x-go">
+import (
+  "fmt"
+  "strings"
+  "time"
+
+  "github.com/jdkato/prose/v2"
+  "github.com/vugu/vugu/vgform"
+)
+
+type Hella struct {
+  Input string `vugu:"data"`
+  Output string `vugu:"data"`
+  Loading bool `vugu:"data"`
+}
+
+func (c *Hella) Calculate(ee vugu.EventEnv) {
+  ee.Lock()
+  c.Loading = true
+  ee.UnlockRender()
+  time.Sleep(time.Second/2) // TODO: Replace with something better
+
+  doc, _ := prose.NewDocument(c.Input)
+  c.Output = c.Input
+
+  done := []string{}
+
+  // Iterate over the doc's tokens:
+  for _, tok := range doc.Tokens() {
+    if tok.Tag == "JJ" {
+      if !(isIn(tok.Tag, done)) {
+        done = append(done, tok.Tag)
+        c.Output = strings.Replace(c.Output, tok.Text, "hella-" + tok.Text, -1)
+      }
+    }
+  }
+
+  ee.Lock()
+  c.Loading = false
+  c.Input = ""
+  ee.UnlockRender()
+}
+
+func isIn(a string, list []string) bool {
+    for _, b := range list {
+        if b == a {
+            return true
+        }
+    }
+    return false
+}
+</script>
