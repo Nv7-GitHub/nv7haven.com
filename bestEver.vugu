@@ -1,0 +1,26 @@
+<div class="container text-center mt-3">
+  <h1>BestEver</h1>
+  <p class="lead">
+    Have you ever wondered what the best thing ever was? Have you ever wondered how good something is? Well this is a way to find out! 
+  </p>
+  <p class="lead">
+    This page hasn't been coded yet, check back later!
+  </p>
+
+  <img style="position: absolute; top: 50%; left: 50%;" src="https://cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif" vg-if="c.Loading">
+</div>
+
+<script type="application/x-go">
+import (
+  "fmt"
+  "net/url"
+  "net/http"
+  "io/ioutil"
+
+  "github.com/vugu/vugu/vgform"
+)
+
+type BestEver struct {
+  Loading bool `vugu:"data"`
+}
+</script>
