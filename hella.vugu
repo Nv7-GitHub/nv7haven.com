@@ -9,7 +9,7 @@
   <br>
   <p vg-content="c.Output" vg-if='c.Output != ""'></p>
   <button class="btn btn-primary" @click="go c.Calculate(event.EventEnv())">Hella-ify!</button>
-  <img style="position: absolute; top: calc(50% - 5vw); left: calc(50% - 5vw); width: 10vw; height: auto;" src="/static/loading.gif" vg-if="c.Loading">
+  <img style="position: absolute; top: calc(50% - 2.5vw); left: calc(50% - 2.5vw); width: 5vw; height: auto;" src="/static/loading.gif" vg-if="c.Loading">
 </div>
 
 <script type="application/x-go">
