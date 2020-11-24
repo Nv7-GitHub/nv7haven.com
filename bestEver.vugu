@@ -1,10 +1,31 @@
 <div class="container text-center mt-3">
   <h1>BestEver</h1>
-  <p class="lead">
+  <ul class="nav nav-pills nav-fill">
+    <li class="nav-item">
+      <a :class='"nav-link " + c.IsOpen("")' href="#" @click='c.Open = ""'>About</a>
+    </li>
+    <li class="nav-item">
+      <a :class='"nav-link " + c.IsOpen("Suggest")' href="#" @click='c.Open = "Suggest"'>Suggest</a>
+    </li>
+    <li class="nav-item">
+      <a :class='"nav-link " + c.IsOpen("Vote")' href="#" @click='c.Open = "Vote"'>Vote</a>
+    </li>
+    <li class="nav-item">
+      <a :class='"nav-link " + c.IsOpen("Leaderboard")' href="#" @click='c.Open = "Leaderboard"'>Leaderboard</a>
+    </li>
+  </ul>
+  <br>
+  <p class="lead" vg-if='c.Open == ""'>
     Have you ever wondered what the best thing ever was? Have you ever wondered how good something is? Well this is a way to find out! 
   </p>
-  <p class="lead">
-    This page hasn't been coded yet, check back later!
+  <p class="lead" vg-if='c.Open == "Suggest"'>
+    Enter your suggestion below! If people like it, you might see it in the leaderboard!
+    <div class="form-inline" vg-if='c.Open == "Suggest"'>
+      <div class="form-group mx-sm-1 mb-2">
+        <vgform:Input type="text" class="form-control" :Value="vgform.StringPtr{&c.Suggestion}" placeholder="Suggestion"></vgform:Input>
+      </div>
+      <button class="btn btn-primary mb-2">Submit</button>
+    </div>
   </p>
 
   <img style="position: absolute; top: 50%; left: 50%;" src="https://cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif" vg-if="c.Loading">
@@ -22,5 +43,14 @@ import (
 
 type BestEver struct {
   Loading bool `vugu:"data"`
+  Open string `vugu: "data"`
+  Suggestion string `vugu:"data"`
+}
+
+func (c *BestEver) IsOpen(val string) string {
+  if val == c.Open {
+    return "active"
+  }
+  return ""
 }
 </script>
