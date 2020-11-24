@@ -27,7 +27,7 @@ func main() {
 	<meta http-equiv='pragma' content='no-cache'> `))
 	mux.Exact("/main.wasm", devutil.NewMainWasmHandler(wc))
 	mux.Exact("/wasm_exec.js", devutil.NewWasmExecJSHandler(wc))
-	mux.Default(devutil.NewFileServer().SetDir("."))
+	mux.Default(devutil.NewFileServer().SetDir("docs"))
 
 	log.Fatal(http.ListenAndServe(l, mux))
 }
