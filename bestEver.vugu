@@ -71,7 +71,7 @@ import (
   "github.com/r3labs/sse/v2"
 )
 
-var prefix = "http://0.0.0.0:8080/"
+var prefix = "https://api.nv7haven.tk/"
 
 type BestEver struct {
   Loading bool `vugu:"data"`
