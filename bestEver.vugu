@@ -20,12 +20,26 @@
   </p>
   <p class="lead" vg-if='c.Open == "Suggest"'>
     Enter your suggestion below! If people like it, you might see it in the leaderboard!
-    <div class="form-inline" vg-if='c.Open == "Suggest"'>
+    <div class="form-inline justify-content-center" vg-if='c.Open == "Suggest"'>
       <div class="form-group mx-sm-1 mb-2">
         <vgform:Input type="text" class="form-control" :Value="vgform.StringPtr{&c.Suggestion}" placeholder="Suggestion"></vgform:Input>
       </div>
-      <button class="btn btn-primary mb-2">Submit</button>
+      <button class="btn btn-primary mb-2" @click="go c.Suggest(event.EventEnv())">Submit</button>
     </div>
+  </p>
+  <p class="lead" vg-if='c.Open == "Vote"'>
+    What is better?
+    <div class="form-inline text-center justify-content-center" vg-if='c.Open == "Vote"'>
+      <button class="btn btn-primary mb-2" vg-content="c.Left" @click='go c.Vote(event.EventEnv(), false)'></button>
+      <span class="mb-2 mx-sm-1">or</span>
+      <button class="btn btn-primary mb-2" vg-content="c.Right" @click='go c.Vote(event.EventEnv(), true)'></button>
+    </div>
+  </p>
+  <p class="lead" vg-if='c.Open == "Leaderboard"'>
+    These are the best things ever!
+    <ul class="list-group" vg-if='c.Open == "Leaderboard"'>
+      <li class="list-group-item" vg-for="i, val := range c.Leaderboard" vg-content='strconv.Itoa(i+1) + ". " + val'></li>
+    </ul>
   </p>
 
   <img style="position: absolute; top: calc(50% - 2.5vw); left: calc(50% - 2.5vw); width: 5vw; height: auto;" src="/static/loading.gif" vg-if="c.Loading">
@@ -34,17 +48,52 @@
 <script type="application/x-go">
 import (
   "fmt"
+  "errors"
+  "strconv"
   "net/url"
   "net/http"
   "io/ioutil"
+  "encoding/json"
 
   "github.com/vugu/vugu/vgform"
+  "github.com/r3labs/sse/v2"
 )
+
+var prefix = "https://api.nv7haven.tk/"
 
 type BestEver struct {
   Loading bool `vugu:"data"`
   Open string `vugu: "data"`
   Suggestion string `vugu:"data"`
+  Left string `vugu: "data"`
+  Right string `vugu: "data"`
+  LeftKey int
+  RightKey int
+  Leaderboard []string
+}
+
+func (c *BestEver) Suggest(ee vugu.EventEnv) {
+  ee.Lock()
+  c.Loading = true
+  ee.UnlockRender()
+
+  res, err := http.Get(prefix + "bestever_new_suggest/" + url.PathEscape(c.Suggestion))
+  if err != nil {
+    panic(err)
+  }
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  if err != nil {
+    panic(err)
+  }
+  if string(output) != "" {
+    panic(errors.New(string(output)))
+  }
+
+  ee.Lock()
+  c.Loading = false
+  c.Suggestion = ""
+  ee.UnlockRender()
 }
 
 func (c *BestEver) IsOpen(val string) string {
@@ -52,5 +101,78 @@ func (c *BestEver) IsOpen(val string) string {
     return "active"
   }
   return ""
+}
+
+func (c *BestEver) Vote(ee vugu.EventEnv, side bool) {
+  ee.Lock()
+  c.Loading = true
+  ee.UnlockRender()
+
+  if c.Left != "Click to start" {
+    var val int
+    if side {
+      val = c.RightKey
+    } else {
+      val = c.LeftKey
+    }
+    res, err := http.Get(prefix + "bestever_vote/" + strconv.Itoa(val))
+    if err != nil {
+      panic(err)
+    }
+    defer res.Body.Close()
+    output, err := ioutil.ReadAll(res.Body)
+    if err != nil {
+      panic(err)
+    }
+    if string(output) != "" {
+      panic(errors.New(string(output)))
+    }
+  }
+
+  res, err := http.Get(prefix + "bestever_get_suggest/")
+  if err != nil {
+    panic(err)
+  }
+  defer res.Body.Close()
+  var data map[int]string
+  err = json.NewDecoder(res.Body).Decode(&data)
+  if err != nil {
+    panic(err)
+  }
+  keys := make([]int, 0, len(data))
+  for k := range data {
+      keys = append(keys, k)
+  }
+  c.Left = data[keys[0]]
+  c.Right = data[keys[1]]
+  c.LeftKey = keys[0]
+  c.RightKey = keys[1]
+
+  ee.Lock()
+  c.Loading = false
+  c.Suggestion = ""
+  ee.UnlockRender()
+}
+
+func (c *BestEver) LdbUpdate() {
+  res, err := http.Get(prefix + "bestever_get_ldb/")
+  if err != nil {
+    panic(err)
+  }
+  defer res.Body.Close()
+  err = json.NewDecoder(res.Body).Decode(&c.Leaderboard)
+  if err != nil {
+    panic(err)
+  }
+}
+
+func (c *BestEver) Init(ctx vugu.InitCtx) {
+  c.Left = "Click to start"
+  c.Right = "Click to start"
+  client := sse.NewClient("https://nv7haven.firebaseio.com/data.json")
+  go client.SubscribeRaw(func(msg *sse.Event) {
+		c.LdbUpdate()
+	})
+  go c.LdbUpdate()
 }
 </script>
