@@ -145,7 +145,7 @@ func (c *BestEver) Vote(ee vugu.EventEnv, side bool) {
       keys = append(keys, k)
   }
 
-  for c.HasDone(keys) {
+  for len(keys) < 2 || c.HasDone(keys) {
     res, err = http.Get(prefix + "bestever_get_suggest/")
     if err != nil {
       panic(err)
