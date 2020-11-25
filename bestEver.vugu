@@ -70,6 +70,7 @@ type BestEver struct {
   LeftKey int
   RightKey int
   Leaderboard []string
+  LocalStorage js.Value
 }
 
 func (c *BestEver) Suggest(ee vugu.EventEnv) {
@@ -143,15 +144,61 @@ func (c *BestEver) Vote(ee vugu.EventEnv, side bool) {
   for k := range data {
       keys = append(keys, k)
   }
+
+  for c.HasDone(keys) {
+    res, err = http.Get(prefix + "bestever_get_suggest/")
+    if err != nil {
+      panic(err)
+    }
+    defer res.Body.Close()
+    err = json.NewDecoder(res.Body).Decode(&data)
+    if err != nil {
+      panic(err)
+    }
+    keys = make([]int, 0, len(data))
+    for k := range data {
+        keys = append(keys, k)
+    }
+  }
+
   c.Left = data[keys[0]]
   c.Right = data[keys[1]]
   c.LeftKey = keys[0]
   c.RightKey = keys[1]
+  c.NewDone(keys)
 
   ee.Lock()
   c.Loading = false
   c.Suggestion = ""
   ee.UnlockRender()
+}
+
+func (c *BestEver) HasDone(key []int) bool {
+  var keys [][]int
+  err := json.Unmarshal([]byte(c.LocalStorage.Call("getItem", "keys").String()), &keys)
+  if err != nil {
+    keys = make([][]int, 0)
+  }
+  for _, val := range keys {
+    if (val[0] == key[0] && val[1] == key[1]) || (val[1] == key[0] && val[0] == key[1]) {
+      return true
+    }
+  }
+  return false
+}
+
+func (c *BestEver) NewDone(key []int) {
+  var keys [][]int
+  err := json.Unmarshal([]byte(c.LocalStorage.Call("getItem", "keys").String()), &keys)
+  if err != nil {
+    keys = make([][]int, 0)
+  }
+  keys = append(keys, key)
+  data, err := json.Marshal(keys)
+  if err != nil {
+    panic(err)
+  }
+  c.LocalStorage.Call("setItem", "keys", js.ValueOf(string(data)))
 }
 
 func (c *BestEver) LdbUpdate() {
@@ -174,5 +221,6 @@ func (c *BestEver) Init(ctx vugu.InitCtx) {
 		c.LdbUpdate()
 	})
   go c.LdbUpdate()
+  c.LocalStorage = js.Global().Get("window").Get("localStorage")
 }
 </script>
