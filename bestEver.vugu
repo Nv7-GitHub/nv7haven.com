@@ -44,6 +44,15 @@
       <li class="list-group-item" vg-for="i, val := range c.Leaderboard" vg-content='strconv.Itoa(i+1) + ". " + val'></li>
     </ul>
   </p>
+  <p class="lead" vg-if='c.Open == "Leaderboard"'>
+    Want to see more?
+     <div class="form-inline justify-content-center" vg-if='c.Open == "Leaderboard"'>
+      <div class="form-group mx-sm-1 mb-2">
+        <vgform:Input type="number" class="form-control" :Value="vgform.StringPtr{&c.Elems}" placeholder="Amount of values"></vgform:Input>
+      </div>
+      <button class="btn btn-primary mb-2" @click="go c.LdbUpdate(event.EventEnv(), true)">Load elements</button>
+    </div>
+  </p>
 
   <img style="position: absolute; top: calc(50% - 2.5vw); left: calc(50% - 2.5vw); width: 5vw; height: auto;" src="/static/loading.gif" vg-if="c.Loading">
 </div>
@@ -62,7 +71,7 @@ import (
   "github.com/r3labs/sse/v2"
 )
 
-var prefix = "https://api.nv7haven.tk/"
+var prefix = "http://0.0.0.0:8080/"
 
 type BestEver struct {
   Loading bool `vugu:"data"`
@@ -74,6 +83,7 @@ type BestEver struct {
   RightKey int
   Leaderboard []string
   LocalStorage js.Value
+  Elems string `vugu: "data"`
 }
 
 func (c *BestEver) Suggest(ee vugu.EventEnv) {
@@ -205,8 +215,14 @@ func (c *BestEver) NewDone(key []int) {
   c.LocalStorage.Call("setItem", "keys", js.ValueOf(string(data)))
 }
 
-func (c *BestEver) LdbUpdate() {
-  res, err := http.Get(prefix + "bestever_get_ldb/")
+func (c *BestEver) LdbUpdate(ee vugu.EventEnv, wasClicked bool) {
+  if wasClicked {
+    ee.Lock()
+    c.Loading = true
+    ee.UnlockRender()
+  }
+
+  res, err := http.Get(prefix + "bestever_get_ldb/" + c.Elems)
   if err != nil {
     panic(err)
   }
@@ -215,16 +231,22 @@ func (c *BestEver) LdbUpdate() {
   if err != nil {
     panic(err)
   }
+  if wasClicked {
+    ee.Lock()
+    c.Loading = false
+    ee.UnlockRender()
+  }
 }
 
 func (c *BestEver) Init(ctx vugu.InitCtx) {
   c.Left = "Click to start"
   c.Right = "Click to start"
+  c.Elems = "10"
   client := sse.NewClient("https://nv7haven.firebaseio.com/data.json")
   go client.SubscribeRaw(func(msg *sse.Event) {
-		c.LdbUpdate()
+		c.LdbUpdate(ctx.EventEnv(), false)
 	})
-  go c.LdbUpdate()
+  go c.LdbUpdate(ctx.EventEnv(), false)
   c.LocalStorage = js.Global().Get("window").Get("localStorage")
 }
 </script>
