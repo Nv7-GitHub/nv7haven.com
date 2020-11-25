@@ -151,6 +151,7 @@ func (c *BestEver) Vote(ee vugu.EventEnv, side bool) {
       panic(err)
     }
     defer res.Body.Close()
+    data = make(map[int]string, 0)
     err = json.NewDecoder(res.Body).Decode(&data)
     if err != nil {
       panic(err)
