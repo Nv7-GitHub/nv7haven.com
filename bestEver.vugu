@@ -30,10 +30,13 @@
   <p class="lead" vg-if='c.Open == "Vote"'>
     What is better?
     <div class="form-inline text-center justify-content-center" vg-if='c.Open == "Vote"'>
-      <button class="btn btn-primary mb-2" vg-content="c.Left" @click='go c.Vote(event.EventEnv(), false)'></button>
+      <button class="btn btn-primary mb-2" vg-content="c.Left" @click='go c.Vote(event.EventEnv(), false, false)'></button>
       <span class="mb-2 mx-sm-1">or</span>
-      <button class="btn btn-primary mb-2" vg-content="c.Right" @click='go c.Vote(event.EventEnv(), true)'></button>
+      <button class="btn btn-primary mb-2" vg-content="c.Right" @click='go c.Vote(event.EventEnv(), true, false)'></button>
     </div>
+  </p>
+  <p class="lead" vg-if='c.Open == "Vote"'>
+    Don't know? <a href="#" @click="go c.Vote(event.EventEnv(), true, true)">Skip</a>!
   </p>
   <p class="lead" vg-if='c.Open == "Leaderboard"'>
     These are the best things ever!
@@ -104,12 +107,12 @@ func (c *BestEver) IsOpen(val string) string {
   return ""
 }
 
-func (c *BestEver) Vote(ee vugu.EventEnv, side bool) {
+func (c *BestEver) Vote(ee vugu.EventEnv, side bool, skipping bool) {
   ee.Lock()
   c.Loading = true
   ee.UnlockRender()
 
-  if c.Left != "Click to start" {
+  if c.Left != "Click to start" && !skipping {
     var val int
     if side {
       val = c.RightKey
