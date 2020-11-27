@@ -126,6 +126,7 @@ func (c *LetterBoxed) solveLetterBoxed() {
 		scores = append(scores, score)
 	}
 	sort.Slice(scores, func(i, j int) bool { return scores[i].Score > scores[j].Score })
+	sort.Slice(scores, func(i, j int) bool { return len(scores[i].Val) < len(scores[j].Val) })
 
 	for _, val := range scores {
 		if val.Score >= 12 {
