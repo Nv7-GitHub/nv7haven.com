@@ -1,0 +1,66 @@
+<div class="container text-center mt-3">
+  <h1>LetterBoxed</h1>
+  <p class="lead">
+   This is a program I wrote to solve <a href="https://www.nytimes.com/puzzles/letter-boxed">New York Times' "Letter Boxed" puzzle</a>. The default values are from the Letter Boxed puzzle on 11/27/2020.
+  </p>
+  <span>
+    <div class="form-group">
+      <vgform:Input type="text" :Value="&vgform.StringPtr{&c.List1}" class="form-control mx-sm-1 mb-2"></vgform:Input>
+      <vgform:Input type="text" :Value="&vgform.StringPtr{&c.List2}" class="form-control mx-sm-1 mb-2"></vgform:Input>
+      <vgform:Input type="text" :Value="&vgform.StringPtr{&c.List3}" class="form-control mx-sm-1 mb-2"></vgform:Input>
+      <vgform:Input type="text" :Value="&vgform.StringPtr{&c.List4}" class="form-control mx-sm-1 mb-2"></vgform:Input>
+    </div>
+    <button class="btn btn-primary" @click="go c.solveLetterBoxed()">Solve</button>
+  </span>
+
+  <p class="lead" vg-if="len(c.Output) > 0">
+    <br>
+    Output
+  </p>
+
+  <div class="table-responsive">
+    <table class="table" style="margin-bottom: 0px;" vg-for="_, val := range c.Output">
+      <tr>
+        <td vg-for="_, text := range val" vg-content="text"></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<script type="application/x-go">
+import (
+  "net/http"
+  "strings"
+
+  "github.com/vugu/vugu/vgform"
+)
+
+type LetterBoxed struct {
+  Words []string
+  List1 string `vugu: "data"`
+  List2 string `vugu: "data"`
+  List3 string `vugu: "data"`
+  List4 string `vugu: "data"`
+  Output [][]string `vugu: "data"`
+}
+
+func handle(err error) {
+  if err != nil {
+    panic(err)
+  }
+}
+
+func (c *LetterBoxed) Init(ctx vugu.InitCtx) {
+  resp, err := http.Get("/words.txt")
+  handle(err)
+  defer resp.Body.Close()
+  wordData, err := ioutil.ReadAll(resp.Body)
+  handle(err)
+  c.Words = strings.Split(string(wordData), "\n")
+
+  c.List1 = "rin"
+  c.List2 = "dsb"
+  c.List3 = "utk"
+  c.List4 = "acm"
+}
+</script>
