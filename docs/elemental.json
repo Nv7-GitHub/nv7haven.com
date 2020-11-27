@@ -2,7 +2,7 @@
   "type":"nv7",
   "name":"Nv7's Elemental",
   "description":"Nv7's Server for Elemental 4",
-  "serverVersion":"2.0.0",
+  "serverVersion":"2.0.2",
   "icon":"https://nv7haven.tk/elemental/icon.png",
   "databaseURL": "https://elementalserver-8c6d0.firebaseio.com"
 }
