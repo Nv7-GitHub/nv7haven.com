@@ -1,7 +1,7 @@
 <div class="container text-center mt-3">
   <h1>LetterBoxed</h1>
   <p class="lead">
-   This is a program I wrote to solve <a href="https://www.nytimes.com/puzzles/letter-boxed">New York Times' "Letter Boxed" puzzle</a>. The default values are from the Letter Boxed puzzle on 11/27/2020.
+   This is a program I wrote to solve <a href="https://www.nytimes.com/puzzles/letter-boxed">New York Times' "Letter Boxed" puzzle</a>. You can find a clean, commented version of the program <a href="https://github.com/Nv7-GitHub/FunRepository/blob/master/LetterBoxed/main.go">here</a>. The default values are from the Letter Boxed puzzle on 11/27/2020.
   </p>
   <span>
     <div class="form-group">
