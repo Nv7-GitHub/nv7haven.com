@@ -71,6 +71,8 @@
 
 <script type="application/x-go">
 
+var valid []string = []string{"WordSearch", "Hella", "BestEver", "LetterBoxed"}
+
 type Root struct {
   Open string `vugu:"data"`
   ShowWasm bool `vugu:"data"`
@@ -85,6 +87,18 @@ func (c *Root) isOpen(component string) string {
     return "active"
   }
   return ""
+}
+
+func (c *Root) Init(ctx vugu.InitCtx) {
+  loc := js.Global().Get("window").Get("location").Get("href").String()
+  if strings.Contains(loc, "?page=") {
+    pageName := strings.Split(strings.Split(loc, "?page=")[1], "&")[0]
+    for _, val := range valid {
+      if strings.ToLower(pageName) == strings.ToLower(val) {
+        c.Open = val
+      }
+    }
+  }
 }
 
 </script>
