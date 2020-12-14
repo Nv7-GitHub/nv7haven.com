@@ -1,0 +1,208 @@
+<style>
+.element {
+  width: 10vh;
+  height: 10vh;
+  border-radius: 2vh;
+  text-align: center;
+}
+</style>
+
+<div class="container text-center mt-3">
+  <h1>Elemental Wiki</h1>
+  <p class="lead">
+    A wiki to find information on Elements in Nv7's Elemental!
+  </p>
+  <div vg-if="!c.ElementOpen">
+    <div class="input-group">
+      <vgform:Input type="search" class="form-control" :Value="vgform.StringPtr{&c.SearchQuery}" placeholder="Search..."></vgform:Input>
+      <div class="input-group-append">
+        <button class="btn btn-outline-secondary" @click="go c.Search(event.EventEnv())">
+            <i class="fa fa-search"></i>
+        </button>
+      </div>
+    </div>
+
+    <br>
+
+    <ul class="list-group">
+      <a class="list-group-item list-group-item-action" vg-for="_, item := range c.Results" vg-content="item" @click="go c.Open(item, event.EventEnv())"></a>
+    </ul>
+  </div>
+
+  <div vg-if="c.ElementOpen">
+    <p class="lead text-center">
+      Element Name
+      <div class="element" vg-content="c.Element.Name" :style='"display: inline-block; background-color: " + c.ProcessColor(c.Element)'></div>
+      <p class="lead text-center">
+        <br>
+        <span><span vg-content="c.Element.Name"></span> was made on <span vg-content='time.Unix(int64(c.Element.CreatedOn/1000), 0).Format("Monday, January 2, 2006 at 3:04 PM")'></span></span>
+      </span>
+      <br>
+      <p class="lead text-center" vg-if="len(c.Element.Parents) == 2">
+        <br>
+        Parents
+      </p>
+      <span vg-if="len(c.Element.Parents) == 2">
+        <div class="element" vg-content="c.Parent1.Name" :style='"display: inline-block; background-color: " + c.ProcessColor(c.Parent1)'></div>
+        <span style="position: relative; top: 3vh;">+</span>
+        <div class="element" vg-content="c.Parent2.Name" :style='"display: inline-block; background-color: " + c.ProcessColor(c.Parent2)'></div>
+      </span>
+    </p>
+
+    <button class="btn btn-primary" style="left: 2vw; bottom: 2vh; position: fixed;" @click='c.ElementOpen = false; c.SearchQuery = ""; go c.Search(event.EventEnv())'><i class="fa fa-arrow-left"></i>&nbsp;back</button>
+  </div>
+
+  <img style="position: absolute; top: calc(50% - 2.5vw); left: calc(50% - 2.5vw); width: 10vh; height: auto; z-index: 100;" src="/static/loading.gif" vg-if="c.Loading">
+</div>
+
+<script type="application/x-go">
+import "github.com/lucasb-eyer/go-colorful"
+
+var colorMap = `{ "white": { "color": "#FFFFFF", "saturationMultiplier": 0, "lightnessMultiplier": 0 }, "black": { "color": "#000000", "saturationMultiplier": 0, "lightnessMultiplier": 0 }, "grey": { "color": "#7F7F7F", "saturationMultiplier": 0, "lightnessMultiplier": 1.75 }, "brown": { "color": "#B58148", "saturationMultiplier": 0.5, "lightnessMultiplier": 0.8 }, "red": { "color": "#E35454", "saturationMultiplier": 1, "lightnessMultiplier": 0.8 }, "orange": { "color": "#E38454", "saturationMultiplier": 1, "lightnessMultiplier": 0.8 }, "yellow": { "color": "#E3CB54", "saturationMultiplier": 1, "lightnessMultiplier": 0.8 }, "yellow-green": { "color": "#B3E354", "saturationMultiplier": 1, "lightnessMultiplier": 0.8 }, "green": { "color": "#7BFAFF", "saturationMultiplier": 1, "lightnessMultiplier": 0.8 }, "aqua": { "color": "#54E3B3", "saturationMultiplier": 1, "lightnessMultiplier": 0.8 }, "blue": { "color": "#72AEDA", "saturationMultiplier": 1, "lightnessMultiplier": 0.8 }, "dark-blue": { "color": "#7289DA", "saturationMultiplier": 1, "lightnessMultiplier": 0.8 }, "purple": { "color": "#8654E3", "saturationMultiplier": 1, "lightnessMultiplier": 0.8 }, "magenta": { "color": "#D054E3", "saturationMultiplier": 1, "lightnessMultiplier": 0.8 }, "hot-pink": { "color": "#E354A2", "saturationMultiplier": 1, "lightnessMultiplier": 0.8 } }`
+
+type Color struct {
+  Color string  
+  SaturationMultiplier float64
+  LightnessMultiplier float64
+}
+
+type Element struct {
+	Color     string 
+	Comment   string   
+	CreatedOn int     
+	Creator   string   
+	Name      string   
+	Parents   []string
+	Pioneer   string  
+}
+
+type Wiki struct {
+  Loading bool `vugu:"data"`
+  SearchQuery string `vugu: "data"`
+  Results []string `vugu: "data"`
+  ElementOpen bool `vugu: "data"`
+  Element Element `vugu: "data"`
+  Parent1 Element `vugu: "data"`
+  Parent2 Element `vugu: "data"`
+  Colors map[string]Color
+}
+
+func (c *Wiki) Search(ee vugu.EventEnv) {
+  if ee != nil {
+    ee.Lock()
+    c.Loading = true
+    ee.UnlockRender()
+  }
+  
+  res, err := http.Get("https://api.nv7haven.tk/search_elems/" + url.PathEscape(c.SearchQuery + "%"))
+  if err != nil {
+    panic(err)
+  }
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  if err != nil {
+    panic(err)
+  }
+  err = json.Unmarshal(output, &c.Results)
+  if err != nil {
+    panic(err)
+  }
+
+  if ee != nil {
+    ee.Lock()
+    c.Loading = false
+    ee.UnlockRender()
+  }
+}
+
+func (c *Wiki) Open(name string, ee vugu.EventEnv) {
+  ee.Lock()
+  c.Loading = true
+  ee.UnlockRender()
+
+  res, err := http.Get("https://api.nv7haven.tk/get_elem/" + url.PathEscape(name))
+  if err != nil {
+    panic(err)
+  }
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  if err != nil {
+    panic(err)
+  }
+  err = json.Unmarshal(output, &c.Element)
+  if err != nil {
+    panic(err)
+  }
+
+  if len(c.Element.Parents) == 2 {
+    res, err = http.Get("https://api.nv7haven.tk/get_elem/" + url.PathEscape(c.Element.Parents[0]))
+    if err != nil {
+      panic(err)
+    }
+    defer res.Body.Close()
+    output, err = ioutil.ReadAll(res.Body)
+    if err != nil {
+      panic(err)
+    }
+    err = json.Unmarshal(output, &c.Parent1)
+    if err != nil {
+      panic(err)
+    }
+
+    res, err = http.Get("https://api.nv7haven.tk/get_elem/" + url.PathEscape(c.Element.Parents[1]))
+    if err != nil {
+      panic(err)
+    }
+    defer res.Body.Close()
+    output, err = ioutil.ReadAll(res.Body)
+    if err != nil {
+      panic(err)
+    }
+    err = json.Unmarshal(output, &c.Parent2)
+    if err != nil {
+      panic(err)
+    }
+  }
+
+  ee.Lock()
+  c.Loading = false
+  c.ElementOpen = true
+  ee.UnlockRender()
+}
+
+func (c *Wiki) ProcessColor(elem Element) string {
+  baseColor := strings.Split(elem.Color, "_")[0]
+  col, err := colorful.Hex(c.Colors[baseColor].Color)
+  if err != nil {
+    panic(err)
+  }
+  h, s, l := col.Hsl()
+  s, err = strconv.ParseFloat(strings.Split(elem.Color, "_")[1], 64)
+  if err != nil {
+    panic(err)
+  }
+  l, err = strconv.ParseFloat(strings.Split(elem.Color, "_")[2], 64)
+  if err != nil {
+    panic(err)
+  }
+  s *= c.Colors[baseColor].SaturationMultiplier
+  l *= c.Colors[baseColor].LightnessMultiplier
+  s = s/2+0.5
+  l = l/2+0.5
+  l = l*0.8+0.2
+  col = colorful.Hsl(h, s, l)
+  colorName := "#000000"
+  if (col.R*0.299 + col.G*0.587 + col.B*0.114) < 0.55 {
+    colorName = "#ffffff"
+  }
+  return col.Hex() + "; color: " + colorName
+}
+
+func (c *Wiki) Init(ctx vugu.InitCtx) {
+  c.Search(ctx.EventEnv())
+  err := json.Unmarshal([]byte(colorMap), &c.Colors)
+  if err != nil {
+    panic(err)
+  }
+}
+</script>
