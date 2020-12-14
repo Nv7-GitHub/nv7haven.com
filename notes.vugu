@@ -85,7 +85,7 @@ import "bytes"
 
 type Notes struct {
   SearchQuery string `vugu: "data"`
-  Results []string
+  Results []string `vugu: "data"`
   Loading bool `vugu: "data"`
   NoteTaking bool `vugu: "data"`
   Name string `vugu: "data"`
