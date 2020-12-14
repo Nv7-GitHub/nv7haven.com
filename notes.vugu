@@ -15,7 +15,7 @@
     </p>
 
     <p class="lead flex-fill">
-    <div class="input-group">
+      <div class="input-group">
         <div class="input-group-prepend">
           <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#newNote" @click="c.ModalShowing = true">
             <i class="fa fa-plus"></i>
