@@ -13,17 +13,17 @@
       <nav class="collapse navbar-collapse" role="navigation">
         <ul class="navbar-nav ml-auto nav">
           <li class="nav-item">
-            <a :class='"nav-link " + c.isOpen("")' @click='c.Open = ""'>Home</a>
+            <a :class='"nav-link " + c.isOpen("")' @click='c.ChangePage("")'>Home</a>
           </li>
           <li :class='"dropdown nav-item " + c.isOpen("!")'>
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Nv7's Projects
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" @click='c.Open = "WordSearch"'>WordSearch</a>
-              <a class="dropdown-item" @click='c.Open = "Hella"'>Hella</a>
-              <a class="dropdown-item" @click='c.Open = "BestEver"'>BestEver</a>
-              <a class="dropdown-item" @click='c.Open = "LetterBoxed"'>LetterBoxed</a>
+              <a class="dropdown-item" @click='c.ChangePage("WordSearch")'>WordSearch</a>
+              <a class="dropdown-item" @click='c.ChangePage("Hella")'>Hella</a>
+              <a class="dropdown-item" @click='c.ChangePage("BestEver")'>BestEver</a>
+              <a class="dropdown-item" @click='c.ChangePage("LetterBoxed")'>LetterBoxed</a>
             </div>
           </li>
         </ul>
@@ -70,6 +70,7 @@
 </div>
 
 <script type="application/x-go">
+import sjs "syscall/js"
 
 var valid []string = []string{"WordSearch", "Hella", "BestEver", "LetterBoxed"}
 
@@ -91,6 +92,7 @@ func (c *Root) isOpen(component string) string {
 
 func (c *Root) Init(ctx vugu.InitCtx) {
   loc := js.Global().Get("window").Get("location").Get("href").String()
+  c.Open = ""
   if strings.Contains(loc, "?page=") {
     pageName := strings.Split(strings.Split(loc, "?page=")[1], "&")[0]
     for _, val := range valid {
@@ -99,6 +101,15 @@ func (c *Root) Init(ctx vugu.InitCtx) {
       }
     }
   }
+}
+
+func (c *Root) ChangePage(newPage string) {
+  c.Open = newPage
+  js.Global().Get("window").Get("history").Call("pushState", js.ValueOf(map[string]interface{}{}), js.ValueOf(""), js.ValueOf("?page=" + newPage))
+  sjs.Global().Get("window").Set("onpopstate", sjs.FuncOf(func(this sjs.Value, args []sjs.Value) interface{} {
+    c.Init(nil)
+    return "";
+  }))
 }
 
 </script>
