@@ -1,0 +1,214 @@
+<style>
+.form-inline > .form-group {
+    vertical-align: top;
+}
+</style>
+
+<div class="container text-center mt-3">
+  <div vg-if="!c.NoteTaking">
+    <h1>QwikNotes</h1>
+
+    <p class="lead">
+      Have you ever been switching computers or users but wanted to keep some text quickly and easily? Well now you can!
+      QwikNotes is a note-taking app that uses your IP Address to identify you, so that as long as you are on the same WiFi network you keep your notes!
+      You can optionally password-protect your notes in case you don't want people on your wifi network seeing your notes.
+    </p>
+
+    <p class="lead flex-fill">
+    <div class="input-group">
+        <div class="input-group-prepend">
+          <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#newNote" @click="c.ModalShowing = true">
+            <i class="fa fa-plus"></i>
+          </button>
+        </div>
+        <vgform:Input type="search" class="form-control" :Value="vgform.StringPtr{&c.SearchQuery}" placeholder="Search..."></vgform:Input>
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" @click="go c.Search(event.EventEnv())">
+              <i class="fa fa-search"></i>
+          </button>
+        </div>
+      </div>
+
+      <span vg-if="c.ModalShowing" vg-content="c.OpenModal()"></span>
+    </p>
+
+    <ul class="list-group">
+      <a class="list-group-item list-group-item-action" vg-for="_, item := range c.Results" vg-content="item" @click="go c.OpenNote(item, event.EventEnv())"></a>
+    </ul>
+  </div>
+
+  <div vg-if="c.NoteTaking">
+    <h1 vg-content="c.Name"></h1>
+
+    <vgform:Textarea id="textarea1" class="form-control" :Value='vgform.StringPtr{&c.NoteData}'></vgform:Textarea>
+    <br>
+    <button class="btn btn-primary" @click="go c.Save(event.EventEnv())">Save&nbsp;<i class="fa fa-save"></i></button>
+
+    <button class="btn btn-primary" style="left: 2vw; bottom: 2vh; position: fixed;" @click="c.NoteTaking = false"><i class="fa fa-arrow-left"></i>&nbsp;back</button>
+  </div>
+
+  <img style="position: absolute; top: calc(50% - 2.5vw); left: calc(50% - 2.5vw); width: 10vh; height: auto; z-index: 100;" src="/static/loading.gif" vg-if="c.Loading">
+</div>
+
+<script type="application/x-go">
+import "errors"
+import "time"
+import "bytes"
+
+type Notes struct {
+  SearchQuery string `vugu: "data"`
+  Results []string
+  Loading bool `vugu: "data"`
+  NoteTaking bool `vugu: "data"`
+  Name string `vugu: "data"`
+  Password string `vugu: "data"`
+  ModalShowing bool `vugu: "data"`
+  NoteData string `vugu: "data"`
+}
+
+func (c *Notes) Search(ee vugu.EventEnv) {
+  if ee != nil {
+    ee.Lock()
+    c.Loading = true
+    ee.UnlockRender()
+  }
+  
+  res, err := http.Get("https://api.nv7haven.tk/note_search/" + url.PathEscape(c.SearchQuery + "%"))
+  if err != nil {
+    panic(err)
+  }
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  if err != nil {
+    panic(err)
+  }
+  err = json.Unmarshal(output, &c.Results)
+  if err != nil {
+    panic(err)
+  }
+
+  if ee != nil {
+    ee.Lock()
+    c.Loading = false
+    ee.UnlockRender()
+  }
+}
+
+func (c *Notes) NewNote(ee vugu.EventEnv) {
+  ee.Lock()
+  c.Loading = true
+  ee.UnlockRender()
+  
+  res, err := http.Get("https://api.nv7haven.tk/new_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password))
+  if err != nil {
+    panic(err)
+  }
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  if err != nil {
+    panic(err)
+  }
+  if string(output) != "" {
+    panic(errors.New(string(output)))
+  }
+
+  c.Open(ee)
+
+  ee.Lock()
+  c.Loading = false
+  c.ModalShowing = false
+  ee.UnlockRender()
+}
+
+func (c *Notes) OpenModal() string {
+  go func() {
+    js.Global().Call("$", "#newNote").Call("modal", "hide")
+    time.Sleep(time.Second/2)
+    js.Global().Call("$", "#newNote").Call("modal", "show")
+  }()
+  return ""
+}
+
+func (c *Notes) Open(ee vugu.EventEnv) bool {
+  ee.Lock()
+  c.Loading = true
+  ee.UnlockRender()
+  
+  res, err := http.Get("https://api.nv7haven.tk/get_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password))
+  if err != nil {
+    panic(err)
+  }
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  if err != nil {
+    panic(err)
+  }
+  if res.StatusCode == 500 {
+    return false
+  }
+
+  ee.Lock()
+  c.Loading = false
+  c.NoteTaking = true
+  c.NoteData = string(output)
+  ee.UnlockRender()
+  return true
+}
+
+func (c *Notes) OpenNote(name string, ee vugu.EventEnv) {
+  ee.Lock()
+  c.Loading = true
+  ee.UnlockRender()
+
+  c.Name = name
+  res, err := http.Get("https://api.nv7haven.tk/has_password/" + url.PathEscape(c.Name))
+  if err != nil {
+    panic(err)
+  }
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  if err != nil {
+    panic(err)
+  }
+  if string(output) == "1" {
+    c.Password = js.Global().Call("prompt", "What is the password?").String()
+    working := c.Open(ee)
+    for !working {
+      c.Password = js.Global().Call("prompt", "What is the password?").String()
+      working = c.Open(ee)
+    }
+  } else if string(output) == "0" {
+    c.Open(ee)
+  }
+  ee.Lock()
+  c.Loading = false
+  ee.UnlockRender()
+}
+
+func (c *Notes) Save(ee vugu.EventEnv) {
+  ee.Lock()
+  c.Loading = true
+  ee.UnlockRender()
+
+  res, err := http.Post("https://api.nv7haven.tk/change_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password), "text/plain", bytes.NewBuffer([]byte(c.NoteData)))
+  if err != nil {
+    panic(err)
+  }
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  if err != nil {
+    panic(err)
+  }
+  if string(output) != "" {
+    panic(errors.New(string(output)))
+  }
+
+  ee.Lock()
+  c.Loading = false
+  ee.UnlockRender()
+}
+
+func (c *Notes) Init(ctx vugu.InitCtx) {
+  c.Search(ctx.EventEnv())
+}
+</script>

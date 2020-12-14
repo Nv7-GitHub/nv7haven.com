@@ -24,6 +24,7 @@
               <a class="dropdown-item" @click='c.ChangePage("Hella")'>Hella</a>
               <a class="dropdown-item" @click='c.ChangePage("BestEver")'>BestEver</a>
               <a class="dropdown-item" @click='c.ChangePage("LetterBoxed")'>LetterBoxed</a>
+              <a class="dropdown-item" @click='c.ChangePage("Notes")'>Notes</a>
             </div>
           </li>
         </ul>
@@ -67,12 +68,13 @@
   <main:Hella vg-if='c.Open == "Hella"'></main:Hella>
   <main:BestEver vg-if='c.Open == "BestEver"'></main:BestEver>
   <main:LetterBoxed vg-if='c.Open == "LetterBoxed"'></main:LetterBoxed>
+  <main:Notes vg-if='c.Open == "Notes"'></main:Notes>
 </div>
 
 <script type="application/x-go">
 import sjs "syscall/js"
 
-var valid []string = []string{"WordSearch", "Hella", "BestEver", "LetterBoxed"}
+var valid []string = []string{"WordSearch", "Hella", "BestEver", "LetterBoxed", "Notes"}
 
 type Root struct {
   Open string `vugu:"data"`
