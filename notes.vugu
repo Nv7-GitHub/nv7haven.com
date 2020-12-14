@@ -67,7 +67,10 @@
 
     <vgform:Textarea id="textarea1" class="form-control" :Value='vgform.StringPtr{&c.NoteData}'></vgform:Textarea>
     <br>
-    <button class="btn btn-primary" @click="go c.Save(event.EventEnv())">Save&nbsp;<i class="fa fa-save"></i></button>
+    <div class="btn-group">
+      <button class="btn btn-success" @click="go c.Save(event.EventEnv())"><i class="fa fa-save"></i>&nbsp;Save</button>
+      <button class="btn btn-danger" @click="go c.Delete(event.EventEnv())">Delete&nbsp;<i class="fa fa-trash"></i></button>
+    </div>
 
     <button class="btn btn-primary" style="left: 2vw; bottom: 2vh; position: fixed;" @click='c.NoteTaking = false; c.SearchQuery = ""; go c.Search(event.EventEnv())'><i class="fa fa-arrow-left"></i>&nbsp;back</button>
   </div>
@@ -230,6 +233,32 @@ func (c *Notes) Save(ee vugu.EventEnv) {
 
   ee.Lock()
   c.Loading = false
+  ee.UnlockRender()
+}
+
+func (c *Notes) Delete(ee vugu.EventEnv) {
+  ee.Lock()
+  c.Loading = true
+  ee.UnlockRender()
+
+  res, err := http.Get("https://api.nv7haven.tk/delete_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password))
+  if err != nil {
+    panic(err)
+  }
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  if err != nil {
+    panic(err)
+  }
+  if string(output) != "" {
+    panic(errors.New(string(output)))
+  }
+
+  ee.Lock()
+  c.Loading = false
+  c.NoteTaking = false
+  c.SearchQuery = ""
+  go c.Search(ee)
   ee.UnlockRender()
 }
 
