@@ -16,7 +16,7 @@
             <a :class='"nav-link " + c.isOpen("")' @click='c.ChangePage("")'>Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="https://discord.com/oauth2/authorize?client_id=788185365533556736&scope=bot&permissions=1610612735">Nv7 Bot</a>
+            <a class="nav-link" href="https://discord.com/oauth2/authorize?client_id=788185365533556736&scope=bot&permissions=8">Nv7 Bot</a>
           </li>
           <li :class='"dropdown nav-item " + c.isOpen("!")'>
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
