@@ -180,6 +180,23 @@ func (c *Tf) OpenPost(page string, ee vugu.EventEnv) {
   ee.UnlockRender()
 
   c.Request("https://api.nv7haven.tk/tf_get/" + url.PathEscape(page), &c.Post)
+  
+  events := make(chan *sse.Event)
+  client := sse.NewClient("https://nv7haven.firebaseio.com/tf_posts/" + url.PathEscape(page) + ".json")
+  client.SubscribeChanRaw(events)
+  go func() {
+    localPage := page
+    count := 0
+    for c.OpenPage == localPage {
+      <-events
+      if count > 0 {
+        client.Unsubscribe(events)
+        go c.OpenPost(localPage, ee)
+      }
+      count++
+    }
+    client.Unsubscribe(events)
+  }()
 
   ee.Lock()
   c.PageOpen = true

@@ -19,16 +19,16 @@ func main() {
 	fmt.Printf("Entering main(), -mount-point=%q\n", *mountPoint)
 	defer fmt.Printf("Exiting main()\n")
 
-	buildEnv, err := vugu.NewBuildEnv()
-	if err != nil {
-		panic(err)
-	}
-
 	renderer, err := domrender.New(*mountPoint)
 	if err != nil {
 		panic(err)
 	}
 	defer renderer.Release()
+
+	buildEnv, err := vugu.NewBuildEnv(renderer.EventEnv())
+	if err != nil {
+		panic(err)
+	}
 
 	rootBuilder := &Root{}
 
