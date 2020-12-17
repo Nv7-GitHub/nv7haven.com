@@ -1,0 +1,246 @@
+<style>
+#thumbsupbtn {
+  transition-duration: 0.2s;
+}
+
+#thumbsupbtn:hover {
+  color: #fca503;
+}
+</style>
+
+<div class="container text-center mt-3">
+  <div vg-if="c.HomeOpen">
+    <h1>Thoughtfloat (Nv7 Edition)</h1>
+    <p class="lead">
+      This is my take at <a href="https://tf.zelo.dev/">thoughtfloat, by zelo101</a>. I thought it would be fun to try to make it myself and implement various features.
+    </p>
+
+    <ul class="nav nav-pills float-right mb-1">
+      <li class="nav-item">
+        <a class="nav-link disabled">Sort By</a>
+      </li>
+      <li class="nav-item">
+        <a :class='c.getClass("likes")' @click='c.Order = "likes"; go c.Search(event.EventEnv())' href="#">Likes</a>
+      </li>
+      <li class="nav-item">
+        <a :class='c.getClass("createdon")' @click='c.Order = "createdon"; go c.Search(event.EventEnv())' href="#">New</a>
+      </li>
+    </ul>
+    
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <button class="btn btn-outline-secondary" @click="c.HomeOpen = false; c.NewPostOpen = true">
+          <i class="fa fa-plus"></i>
+        </button>
+      </div>
+      <vgform:Input type="search" class="form-control" :Value="vgform.StringPtr{&c.SearchQuery}" placeholder="Search..."></vgform:Input>
+      <div class="input-group-append">
+        <button class="btn btn-outline-secondary" @click="go c.Search(event.EventEnv())">
+            <i class="fa fa-search"></i>
+        </button>
+      </div>
+    </div>
+
+    <ul class="list-group">
+      <a class="list-group-item list-group-item-action" vg-for="_, item := range c.Results" vg-content="item" @click="c.HomeOpen = false; go c.OpenPost(item, event.EventEnv())"></a>
+    </ul>
+  </div>
+
+  <div vg-if="c.NewPostOpen">
+    <h1>New Thought</h1>
+    <div class="form">
+      <vgform:Input type="text" :Value="vgform.StringPtr{&c.Title}" placeholder="Thought title?" class="form-control mb-1"></vgform:Input>
+      <vgform:Textarea :Value="vgform.StringPtr{&c.Content}" placeholder="Thought?" class="form-control mb-1"></vgform:Textarea>
+      <button class="btn btn-primary" @click="go c.PostThought(event.EventEnv())">Post Thought</button>
+    </div>
+
+    <button class="btn btn-primary" style="left: 2vw; bottom: 2vh; position: fixed;" @click='c.NewPostOpen = false; c.HomeOpen = true; c.SearchQuery = ""; go c.Search(event.EventEnv())'><i class="fa fa-arrow-left"></i>&nbsp;back</button>
+  </div>
+
+  <div vg-if="c.PageOpen">
+    <h1 vg-content="c.OpenPage"></h1>
+    <p class="lead"><i class="fa fa-thumbs-up" id="thumbsupbtn" @click="go c.Like(event.EventEnv())"></i> <span vg-content="c.Post.Likes"></span> Like<span vg-if="c.Post.Likes != 1">s</span> &nbsp;&nbsp;&nbsp; Posted on <span vg-content='time.Unix(int64(c.Post.CreatedOn), 0).Format("Monday, January 2, 2006 at 3:04 PM")'></span></p>
+    <p class="lead" vg-content="c.Post.Content"></p>
+
+    <button class="btn btn-primary" style="left: 2vw; bottom: 2vh; position: fixed;" @click='c.PageOpen = false; c.HomeOpen = true; c.SearchQuery = ""; go c.Search(event.EventEnv())'><i class="fa fa-arrow-left"></i>&nbsp;back</button>
+
+    <ul class="list-group list-group-flush text-center mb-3">
+      <li class="list-group-item" vg-for="_, item := range c.Post.Comments" vg-content="item"></li>
+    </ul>
+
+    <div class="input-group text-center">
+        <vgform:Input type="text" class="form-control" :Value="vgform.StringPtr{&c.Comment}" placeholder="Comment?"></vgform:Input>
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" @click="go c.Reply(event.EventEnv())">
+              <i class="fa fa-check"></i>
+          </button>
+        </div>
+      </div>
+  </div>
+
+ <img style="position: absolute; top: calc(50% - 2.5vw); left: calc(50% - 2.5vw); width: 10vh; height: auto; z-index: 100;" src="/static/loading.gif" vg-if="c.Loading"></img>
+</div>
+
+<script type="application/x-go">
+type Post struct {
+	Name      string
+	Content   string
+	Likes     int
+	Comments  []string
+	CreatedOn int
+}
+
+type Tf struct {
+  Loading bool `vugu: "data"`
+  Order string `vugu: "data"`
+  HomeOpen bool `vugu: "data"`
+  Results []string `vugu: "data"`
+  OpenPage string `vugu: "data"`
+  PageOpen bool `vugu: "data"`
+  NewPostOpen bool `vugu: "data"`
+  SearchQuery string `vugu: "data"`
+  Content string `vugu: "data"`
+  Title string `vugu: "data"`
+  Post Post `vugu: "data"`
+  Comment string `vugu:"data"`
+}
+
+func (c *Tf) getClass(name string) string {
+  class := "nav-link"
+  if c.Order == name {
+    class += " active"
+  }
+  return class
+}
+
+func (c *Tf) handle(err error, critical ...bool) {
+  if err != nil {
+    js.Global().Call("alert", err.Error())
+    if len(critical) > 0 {
+      panic(err)
+    }
+  }
+}
+
+func (c *Tf) Request(url string, data interface{}) {
+  res, err := http.Get(url)
+  c.handle(err, true)
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  c.handle(err, true)
+  if res.StatusCode == 500 {
+    c.handle(errors.New(string(output)), true)
+  }
+  err = json.Unmarshal(output, data)
+  c.handle(err, true)
+}
+
+func (c *Tf) Search(ee vugu.EventEnv) {
+  if ee != nil {
+    ee.Lock()
+    c.Loading = true
+    ee.UnlockRender()
+  }
+  c.Request("https://api.nv7haven.tk/search_tf/" + url.PathEscape(c.SearchQuery + "%") + "/" + c.Order, &c.Results)
+  if ee != nil {
+    ee.Lock()
+    c.Loading = false
+    ee.UnlockRender()
+  }
+}
+
+func (c *Tf) PostThought(ee vugu.EventEnv) {
+  ee.Lock()
+  c.Loading = true
+  ee.UnlockRender()
+
+  res, err := http.Post("https://api.nv7haven.tk/new_tf/" + url.PathEscape(c.Title), "text/plain", bytes.NewBuffer([]byte(c.Content)))
+  if err != nil {
+    c.handle(err, true)
+  }
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  if err != nil {
+    c.handle(err, true)
+  }
+  if string(output) != "" {
+    c.handle(err, true)
+  }
+
+  ee.Lock()
+  c.Loading = false
+  c.NewPostOpen = false
+  ee.UnlockRender()
+  c.OpenPost(c.Title, ee)
+}
+
+func (c *Tf) OpenPost(page string, ee vugu.EventEnv) {
+  ee.Lock()
+  c.Loading = true
+  ee.UnlockRender()
+
+  c.Request("https://api.nv7haven.tk/tf_get/" + url.PathEscape(page), &c.Post)
+
+  ee.Lock()
+  c.PageOpen = true
+  c.OpenPage = page
+  c.Loading = false
+  ee.UnlockRender()
+}
+
+func (c *Tf) Like(ee vugu.EventEnv) {
+  ee.Lock()
+  c.Loading = true
+  ee.UnlockRender()
+
+  res, err := http.Get("https://api.nv7haven.tk/tf_like/" + url.PathEscape(c.OpenPage))
+  c.handle(err, true)
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  c.handle(err, true)
+  if res.StatusCode == 500 {
+    c.handle(errors.New(string(output)), true)
+  }
+  if string(output) != "" {
+    c.handle(errors.New(string(output)))
+  }
+
+  ee.Lock()
+  c.Loading = false
+  ee.UnlockRender()
+  c.OpenPost(c.OpenPage, ee)
+}
+
+func (c *Tf) Reply(ee vugu.EventEnv) {
+  ee.Lock()
+  c.Loading = true
+  ee.UnlockRender()
+
+  res, err := http.Post("https://api.nv7haven.tk/tf_comment/" + url.PathEscape(c.OpenPage), "text/plain", bytes.NewBuffer([]byte(c.Comment)))
+  if err != nil {
+    c.handle(err, true)
+  }
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  if err != nil {
+    c.handle(err, true)
+  }
+  if string(output) != "" {
+    c.handle(err, true)
+  } 
+
+  ee.Lock()
+  c.Loading = false
+  c.Comment = ""
+  ee.UnlockRender()
+
+  c.OpenPost(c.OpenPage, ee)
+}
+
+func (c *Tf) Init(ctx vugu.InitCtx) {
+  c.Order = "likes"
+  c.HomeOpen = true
+  c.Search(ctx.EventEnv())
+}
+
+</script>
