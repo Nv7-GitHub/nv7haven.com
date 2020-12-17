@@ -258,6 +258,22 @@ func (c *Tf) Init(ctx vugu.InitCtx) {
   c.Order = "likes"
   c.HomeOpen = true
   c.Search(ctx.EventEnv())
+
+  events := make(chan *sse.Event)
+  client := sse.NewClient("https://nv7haven.firebaseio.com/tf_post.json")
+  client.SubscribeChanRaw(events)
+  go func() {
+    count := 0
+    for c.HomeOpen {
+      <-events
+      if count > 0 {
+        client.Unsubscribe(events)
+        go c.Search(ctx.EventEnv())
+      }
+      count++
+    }
+    client.Unsubscribe(events)
+  }()
 }
 
 </script>
