@@ -60,7 +60,7 @@
   <div vg-if="c.PageOpen">
     <h1 vg-content="c.OpenPage"></h1>
     <p class="lead"><i class="fa fa-thumbs-up" id="thumbsupbtn" @click="go c.Like(event.EventEnv())"></i> <span vg-content="c.Post.Likes"></span> Like<span vg-if="c.Post.Likes != 1">s</span> &nbsp;&nbsp;&nbsp; Posted on <span vg-content='time.Unix(int64(c.Post.CreatedOn), 0).Format("Monday, January 2, 2006 at 3:04 PM")'></span></p>
-    <p class="lead" vg-content="c.Post.Content"></p>
+    <p class="lead text-center" vg-content="vugu.HTML(strings.Replace(c.Post.Content, `<li>`, `<li class='text-left'>`, -1))"></p>
 
     <button class="btn btn-primary" style="left: 2vw; bottom: 2vh; position: fixed;" @click='c.PageOpen = false; c.HomeOpen = true; c.SearchQuery = ""; go c.Search(event.EventEnv())'><i class="fa fa-arrow-left"></i>&nbsp;back</button>
 
