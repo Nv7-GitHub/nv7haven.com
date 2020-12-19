@@ -6,13 +6,30 @@
 #thumbsupbtn:hover {
   color: #fca503;
 }
+
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+.spinning {
+  -webkit-animation:spin 1s linear infinite;
+  -moz-animation:spin 1s linear infinite;
+  animation:spin 1s linear infinite;
+  border-radius: 50%;
+  height: 5vh;
+  width: auto;
+  position: fixed;
+  top: 10vh;
+  left: 2vw;
+}
 </style>
 
 <div class="container text-center mt-3">
+  <img vg-if="c.Spinning" class="spinning" src="https://cdn.discordapp.com/avatars/567132457820749842/0b0f4085d4c155c2c932982d0ddff838.png"></img>
+
   <div vg-if="c.HomeOpen">
     <h1>Thoughtfloat (Nv7 Edition)</h1>
     <p class="lead">
-      This is my take at <a href="https://tf.zelo.dev/">thoughtfloat, by zelo101</a>. I thought it would be fun to try to make it myself and implement various features.
+      This is my take at <a href="https://tf.zelo.dev/">thoughtfloat, by zelo101</a>. I thought it would be fun to try to make it myself and implement various features. For the signature Zelo spinner, click <a href="#" @click="c.Spinning = !c.Spinning">here</a>!
     </p>
 
     <ul class="nav nav-pills float-right mb-1">
@@ -103,6 +120,8 @@ type Tf struct {
   Title string `vugu: "data"`
   Post Post `vugu: "data"`
   Comment string `vugu:"data"`
+
+  Spinning bool `vugu: "data"`
 }
 
 func (c *Tf) getClass(name string) string {
