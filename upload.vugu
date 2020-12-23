@@ -1,0 +1,90 @@
+<div class="container text-center mt-3">
+  <h1>FileHaven</h1>
+  <p class="lead">
+    Have you ever wanted to share a file but have had no place to share it? Well this is where you can share it! We can process your files at 1 gigabit/second, so no need to worry about our server's speed! 
+  </p>
+
+  <div class="custom-file mb-3 text-left">
+    <input type="file" class="custom-file-input" id="customFile" name="filename" @change="c.FileChange()">
+    <label class="custom-file-label" id="customFileLabel" for="customFile" vg-content="c.Filename"></label>
+  </div>
+
+  <p class="lead" vg-if="c.Link != ``">
+    <a :href="c.Link">Download Link</a>
+  </p>
+
+  <button :class="c.GetButtonClass()" .disabled="c.Filename == `Choose a File`" @click="go c.UploadFile(event.EventEnv())" vg-if="!c.Loading">Upload Files</button>  
+  <div class="progress" vg-if="c.Loading">
+    <div class="progress-bar progress-bar-striped progress-bar-animated" :style='"width: " + strconv.Itoa(c.Percent) + "%"' id="progress"></div>
+  </div>
+</div>
+
+<script type="application/x-go">
+import (
+  "fmt"
+  "net/url"
+  "net/http"
+  "io/ioutil"
+
+  "github.com/vugu/vugu/vgform"
+)
+
+type Upload struct {
+  Loading bool `vugu:"data"`
+  Filename string `vugu: "data"`
+  Percent int `vugu: "data"`
+  Link string
+}
+
+func (c *Upload) FileChange() {
+  files := strings.Split(js.Global().Get("document").Call("getElementById", "customFile").Get("value").String(), "\\")
+  c.Filename = files[len(files)-1]
+}
+
+func (c *Upload) Init(ctx vugu.InitCtx) {
+  c.Filename = "Choose a File"
+}
+
+func (c *Upload) GetButtonClass() string {
+  text := "btn btn-success"
+  if c.Filename == "Choose a File" {
+    text += " disabled"
+  }
+  return text
+}
+
+func (c *Upload) UploadFile(ee vugu.EventEnv) {
+  ee.Lock()
+  c.Loading = true
+  c.Percent = 0
+  ee.UnlockRender()
+
+  formDat := sjs.Global().Get("FormData").New()
+  formDat.Call("append", "file", sjs.Global().Get("document").Call("getElementById", "customFile").Get("files").Index(0))
+
+  req := sjs.Global().Get("XMLHttpRequest").New()
+  req.Get("upload").Call("addEventListener", "progress", sjs.FuncOf(func(this sjs.Value, args []sjs.Value) interface{} {
+    size := sjs.Global().Get("document").Call("getElementById", "customFile").Get("files").Index(0).Get("size").Int()
+    loaded := args[0].Get("loaded").Int()
+    c.Percent = int(float32(loaded)/float32(size) * 100)
+    sjs.Global().Get("document").Call("getElementById", "progress").Get("style").Set("width", strconv.Itoa(c.Percent) + "%")
+    return nil
+  }))
+  req.Set("onreadystatechange", sjs.FuncOf(func(this sjs.Value, args []sjs.Value) interface{} {
+    if req.Get("readyState").Equal(sjs.Global().Get("XMLHttpRequest").Get("DONE")) {
+      sjs.Global().Get("document").Call("getElementById", "customFile").Call("setAttribute", "type", "text")
+      sjs.Global().Get("document").Call("getElementById", "customFile").Call("setAttribute", "type", "file")
+      ee.Lock()
+      c.Loading = false
+      c.Link = "https://api.nv7haven.tk/get_file/" + req.Get("responseText").String()
+      c.Percent = 0
+      c.Filename = "Choose a File"
+      ee.UnlockRender()
+    }
+    return nil
+  }))
+  req.Call("open", "post", "https://api.nv7haven.tk/upload")
+  req.Set("timeout", 99999999999999)
+  req.Call("send", formDat)
+}
+</script>
