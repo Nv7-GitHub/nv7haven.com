@@ -1,0 +1,76 @@
+<div class="container text-center mt-3">
+  <h1>WordSearch Generator</h1>
+  <p class="lead">
+    This website has a Word Search solver, so why not a word search generator? This generates word searches that can be solved using the Word Search solver!
+  </p>
+
+  <div class="input-group mb-3">
+    <vgform:Input type="text" class="form-control" :Value="vgform.StringPtr{&c.Input}" placeholder="Enter item to be put into word search here..."></vgform:Input>
+    <div class="input-group-append">
+      <button class="btn btn-outline-secondary" @click="c.Items = append(c.Items, c.Input); c.Input = ``">
+        <i class="fa fa-plus"></i>
+      </button>
+    </div>
+  </div>
+
+  <ul class="list-group"> 
+    <li class="list-group-item d-flex justify-content-between" vg-for="i, word := range c.Items">
+      <div class="p-0 m-0 flex-grow-1" vg-content="word" style="transform: translateY(20%);"></div> 
+      <button class="btn btn-danger" @click="c.RemoveByIndex(i)">
+        <i class="fa fa-trash"></i>
+      </button>
+    </li>
+  </ul>
+
+  <div class="form-group row mt-3">
+    <label class="col-sm-2 col-form-label">Width</label>
+    <div class="col-sm-10">
+      <vgform:Input type="number" class="form-control" :Value="vgform.StringPtr{&c.Width}"></vgform:Input>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label class="col-sm-2 col-form-label">Height</label>
+    <div class="col-sm-10">
+      <vgform:Input type="number" class="form-control" :Value="vgform.StringPtr{&c.Height}"></vgform:Input>
+    </div>
+  </div>
+  <button class="btn btn-success" @click="c.Create()">Create WordSearch</button>
+
+  <p vg-content='vugu.HTML(strings.Replace(c.Output, "\n", "<br>", -1))' class="lead mt-3" vg-if="c.Output != ``"></p>
+  <button class="btn btn-success" @click="c.Copy()" vg-if="c.Output != ``">Copy Text</button>
+</div>
+
+<script type="application/x-go">
+
+type Wsgen struct {
+  Items []string `vugu: "data"`
+  Input string `vugu: "data"`
+  Output string `vugu: "data"`
+  Width string
+  Height string
+}
+
+func (c *Wsgen) RemoveByIndex(index int) {
+  copy(c.Items[index:], c.Items[index+1:])
+  c.Items = c.Items[:len(c.Items)-1]
+}
+
+func (c *Wsgen) handle(err error) {
+  if err != nil {
+    js.Global().Call("alert", err.Error())
+    panic(err)
+  }
+}
+
+func (c *Wsgen) Create() {
+  width, err := strconv.Atoi(c.Width)
+  handle(err)
+  height, err := strconv.Atoi(c.Height)
+  handle(err)
+  c.Output = GenWordSearch(c.Items, width, height)
+}
+
+func (c *Wsgen) Copy() {
+  js.Global().Get("navigator").Get("clipboard").Call("writeText", c.Output)
+}
+</script>

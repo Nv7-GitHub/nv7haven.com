@@ -13,7 +13,7 @@
       <nav class="collapse navbar-collapse" role="navigation">
         <ul class="navbar-nav ml-auto nav">
           <li class="nav-item">
-            <a :class='"nav-link " + c.isOpen("")' @click='c.ChangePage("")'>Home</a>
+            <a :class='"nav-link " + c.isOpen("")' @click='c.ChangePage("", event.EventEnv())'>Home</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="https://discord.com/oauth2/authorize?client_id=788185365533556736&scope=bot&permissions=201329728&redirect_uri=https%3A%2F%2Fnv7haven.tk">Nv7 Bot</a>
@@ -23,14 +23,15 @@
               Nv7's Projects
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" @click='c.ChangePage("WordSearch")'>WordSearch</a>
-              <a class="dropdown-item" @click='c.ChangePage("Hella")'>Hella</a>
-              <a class="dropdown-item" @click='c.ChangePage("BestEver")'>BestEver</a>
-              <a class="dropdown-item" @click='c.ChangePage("LetterBoxed")'>LetterBoxed</a>
-              <a class="dropdown-item" @click='c.ChangePage("Notes")'>Notes</a>
-              <a class="dropdown-item" @click='c.ChangePage("Wiki")'>Element Wiki</a>
-              <a class="dropdown-item" @click='c.ChangePage("Tf")'>Thoughtfloat</a>
-              <a class="dropdown-item" @click='c.ChangePage("Upload")'>FileHaven</a>
+              <a class="dropdown-item" @click='c.ChangePage("WordSearch", event.EventEnv())'>WordSearch</a>
+              <a class="dropdown-item" @click='c.ChangePage("Hella", event.EventEnv())'>Hella</a>
+              <a class="dropdown-item" @click='c.ChangePage("BestEver", event.EventEnv())'>BestEver</a>
+              <a class="dropdown-item" @click='c.ChangePage("LetterBoxed", event.EventEnv())'>LetterBoxed</a>
+              <a class="dropdown-item" @click='c.ChangePage("Notes", event.EventEnv())'>Notes</a>
+              <a class="dropdown-item" @click='c.ChangePage("Wiki", event.EventEnv())'>Element Wiki</a>
+              <a class="dropdown-item" @click='c.ChangePage("Tf", event.EventEnv())'>Thoughtfloat</a>
+              <a class="dropdown-item" @click='c.ChangePage("Upload", event.EventEnv())'>FileHaven</a>
+              <a class="dropdown-item" @click='c.ChangePage("WSGen", event.EventEnv())'>WSGen</a>
             </div>
           </li>
         </ul>
@@ -78,18 +79,20 @@
   <main:Wiki vg-if='c.Open == "Wiki"'></main:Wiki>
   <main:Tf vg-if='c.Open == "Tf"'></main:Tf>
   <main:Upload vg-if='c.Open == "Upload"'></main:Upload>
+  <main:Wsgen vg-if='c.Open == "WSGen"'></main:Wsgen>
 </div>
 
 <script type="application/x-go">
 import sjs "syscall/js"
 
-var valid []string = []string{"WordSearch", "Hella", "BestEver", "LetterBoxed", "Notes", "Wiki", "Tf", "Upload"}
+var valid []string = []string{"WordSearch", "Hella", "BestEver", "LetterBoxed", "Notes", "Wiki", "Tf", "Upload", "WSGen"}
 
 type Root struct {
   Open string `vugu:"data"`
   ShowWasm bool `vugu:"data"`
   ShowGo bool   `vugu:"data"`
   ShowVugu bool `vugu:"data"`
+  Ee vugu.EventEnv
 }
 
 func (c *Root) isOpen(component string) string {
@@ -113,9 +116,14 @@ func (c *Root) Init(ctx vugu.InitCtx) {
       }
     }
   }
+  if c.Ee != nil {
+    c.Ee.Lock()
+   c.Ee.UnlockRender()
+  }
 }
 
-func (c *Root) ChangePage(newPage string) {
+func (c *Root) ChangePage(newPage string, ee vugu.EventEnv) {
+  c.Ee = ee
   c.Open = newPage
   js.Global().Get("window").Get("history").Call("pushState", js.ValueOf(map[string]interface{}{}), js.ValueOf(""), js.ValueOf("?page=" + newPage))
   sjs.Global().Get("window").Set("onpopstate", sjs.FuncOf(func(this sjs.Value, args []sjs.Value) interface{} {
