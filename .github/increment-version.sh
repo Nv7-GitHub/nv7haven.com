@@ -1,5 +1,6 @@
 go get -u github.com/vugu/vgrun
-vgrun -install-tools
+COMMAND="$(go env GOPATH)/bin/vgrun -install-tools"
+bash -c $COMMAND
 echo "Got Tools"
 
 COMMAND="$(go env GOPATH)/bin/vugugen -s"
