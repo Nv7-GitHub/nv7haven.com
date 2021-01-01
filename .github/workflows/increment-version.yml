@@ -17,21 +17,13 @@ jobs:
        - name: Save Version
          run: sed "s/\?v=1/?v=${THING}/g" docs/index.html
        
-       - name: switching from HTTPS to SSH
-         run: git remote set-url origin ${{ secrets.ssh }}
+       - name: Set Locals
+         run: git config --local user.email "action@github.com"
+         run: git config --local user.name "GitHub Action"
+         run: git commit -m "Increment Version" -a
          
-       - name: check for changes
-         run: git status
-         
-       - name: stage changed files
-         run: git add .
-         
-       - name: commit changed files
-         run: git commit -m "Incremented Version To ${THING}"
-         
-       - name: fetch from master
-         run: git fetch origin master
-         
-       - name: push code to master
-         run: git push origin HEAD:master
-         
+       - name: Push changes
+         uses: ad-m/github-push-action@master
+         with:
+           github_token: ${{ secrets.GITHUB_TOKEN }}
+           branch: ${{ github.ref }}
