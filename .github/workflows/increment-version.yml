@@ -9,7 +9,7 @@ jobs:
          uses: actions/checkout@v2
        
        - name: Increment Version
-         run: "./.github/increment-version.sh"
+         run: "sh ./.github/increment-version.sh"
        
        - name: Set Locals
          run: git config --local user.email "action@github.com"
