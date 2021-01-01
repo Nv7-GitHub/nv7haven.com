@@ -19,7 +19,9 @@ jobs:
        
        - name: Set Locals
          run: git config --local user.email "action@github.com"
+       - name: Set Locals
          run: git config --local user.name "GitHub Action"
+       - name: Commit
          run: git commit -m "Increment Version" -a
          
        - name: Push changes
