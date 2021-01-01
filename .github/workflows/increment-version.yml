@@ -15,7 +15,7 @@ jobs:
          run: THING=$((THING + 1))
        
        - name: Save Version
-         run: sed "s/\?v=1/?v=${THING}/g" docs/index.html > docs/index.html
+         run: sed -i '' "s/\?v=1/?v=${THING}/g" docs/index.html
        
        - name: Set Locals
          run: git config --local user.email "action@github.com"
