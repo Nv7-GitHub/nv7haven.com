@@ -1,11 +1,10 @@
 go get github.com/vugu/vugu
 go install github.com/vugu/vugu/cmd/vugugen
+COMMAND="$(go env GOPATH)/bin/vgrun -install-tools"
+bash -c $COMMAND
 echo "Got Tools"
 
 COMMAND="$(go env GOPATH)/bin/vugugen -s"
-bash -c $COMMAND
-bash -c $COMMAND
-bash -c $COMMAND
 bash -c $COMMAND
 echo "Generated"
 GOOS=js GOARCH=wasm go build -ldflags="-w -s" -o docs/main.wasm
