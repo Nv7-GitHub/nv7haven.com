@@ -21,6 +21,10 @@ jobs:
          run: git config --local user.email "action@github.com"
        - name: Set Locals
          run: git config --local user.name "GitHub Action"
+         
+       - name: Git Add
+         run: git add docs/index.html
+       
        - name: Commit
          run: git commit -m "Increment Version" -a
          
