@@ -14,6 +14,9 @@ jobs:
        - name: Increment Version
          run: THING=$((THING + 1))
        
+       - name: Echo
+         run: echo $THING
+       
        - name: Save Version
          run: sed -i '' "s/\?v=1/?v=${THING}/g" docs/index.html
        
