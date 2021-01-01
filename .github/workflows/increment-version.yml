@@ -7,18 +7,9 @@ jobs:
      steps:
        - name: Checkout code
          uses: actions/checkout@v2
-         
-       - name: Get Version
-         run: THING=$(cat docs/index.html | pcregrep -o1 '\?v=([0-9]+)')
        
        - name: Increment Version
-         run: THING=$((THING + 1))
-       
-       - name: Echo
-         run: echo $THING
-       
-       - name: Save Version
-         run: sed -i '' "s/\?v=1/?v=${THING}/g" docs/index.html
+         run: "./.github/increment-version.sh"
        
        - name: Set Locals
          run: git config --local user.email "action@github.com"
@@ -29,7 +20,7 @@ jobs:
          run: git add docs/index.html
        
        - name: Commit
-         run: git commit -m "Increment Version" -a
+         run: git commit -m "Increment Version To ${THING}" -a
          
        - name: Push changes
          uses: ad-m/github-push-action@master
