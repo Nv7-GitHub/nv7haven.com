@@ -20,7 +20,7 @@ jobs:
          run: git add docs/index.html
        
        - name: Commit
-         run: git commit -m "Increment Version To ${THING}" -a
+         run: git commit -m "Increment Version" -a
          
        - name: Push changes
          uses: ad-m/github-push-action@master
