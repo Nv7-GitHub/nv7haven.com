@@ -2,7 +2,8 @@ go get -u github.com/vugu/vgrun
 vgrun -install-tools
 echo "Got Tools"
 
-go generate
+COMMAND="$(go env GOPATH)/bin/vugugen -s"
+bash -c $COMMAND
 echo "Generated"
 GOOS=js GOARCH=wasm go build -ldflags="-w -s" -o docs/main.wasm
 echo "Built"
