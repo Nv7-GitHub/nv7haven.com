@@ -13,25 +13,17 @@
       <nav class="collapse navbar-collapse" role="navigation">
         <ul class="navbar-nav ml-auto nav">
           <li class="nav-item">
-            <a :class='"nav-link " + c.isOpen("")' @click='c.ChangePage("", event.EventEnv())'>Home</a>
+            <a :class='"nav-link " + c.isOpen("")' @click='c.ChangePage("", "", event.EventEnv())'>Home</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="https://discord.com/oauth2/authorize?client_id=788185365533556736&scope=bot&permissions=201329728&redirect_uri=https%3A%2F%2Fnv7haven.tk">Nv7 Bot</a>
           </li>
-          <li :class='"dropdown nav-item " + c.isOpen("!")'>
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Nv7's Projects
+
+          <li :class='"dropdown nav-item " + c.isOpen(key)' vg-for="_, key := range keys">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" vg-content="key" href="#">
             </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" @click='c.ChangePage("WordSearch", event.EventEnv())'>WordSearch</a>
-              <a class="dropdown-item" @click='c.ChangePage("Hella", event.EventEnv())'>Hella</a>
-              <a class="dropdown-item" @click='c.ChangePage("BestEver", event.EventEnv())'>BestEver</a>
-              <a class="dropdown-item" @click='c.ChangePage("LetterBoxed", event.EventEnv())'>LetterBoxed</a>
-              <a class="dropdown-item" @click='c.ChangePage("Notes", event.EventEnv())'>Notes</a>
-              <a class="dropdown-item" @click='c.ChangePage("Wiki", event.EventEnv())'>Element Wiki</a>
-              <a class="dropdown-item" @click='c.ChangePage("Tf", event.EventEnv())'>Thoughtfloat</a>
-              <a class="dropdown-item" @click='c.ChangePage("Upload", event.EventEnv())'>FileHaven</a>
-              <a class="dropdown-item" @click='c.ChangePage("WSGen", event.EventEnv())'>WSGen</a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" @click='c.ChangePage(k, key, event.EventEnv())' vg-for="_, k := range pageVals[key]" vg-content="pages[key][k]"></a>
             </div>
           </li>
         </ul>
@@ -71,60 +63,93 @@
         <a target="_blank" href="https://vugu.org/">Read more at vugu.org &raquo;</a>
     </div>
   </div>
-  <main:WordSearch vg-if='c.Open == "WordSearch"'></main:WordSearch>
-  <main:Hella vg-if='c.Open == "Hella"'></main:Hella>
-  <main:BestEver vg-if='c.Open == "BestEver"'></main:BestEver>
-  <main:LetterBoxed vg-if='c.Open == "LetterBoxed"'></main:LetterBoxed>
-  <main:Notes vg-if='c.Open == "Notes"'></main:Notes>
-  <main:Wiki vg-if='c.Open == "Wiki"'></main:Wiki>
-  <main:Tf vg-if='c.Open == "Tf"'></main:Tf>
-  <main:Upload vg-if='c.Open == "Upload"'></main:Upload>
-  <main:Wsgen vg-if='c.Open == "WSGen"'></main:Wsgen>
+  <main:WordSearch vg-if='c.Open == "wordsearch"'></main:WordSearch>
+  <main:Hella vg-if='c.Open == "hella"'></main:Hella>
+  <main:BestEver vg-if='c.Open == "bestever"'></main:BestEver>
+  <main:LetterBoxed vg-if='c.Open == "letterboxed"'></main:LetterBoxed>
+  <main:Notes vg-if='c.Open == "notes"'></main:Notes>
+  <main:Wiki vg-if='c.Open == "wiki"'></main:Wiki>
+  <main:Tf vg-if='c.Open == "tf"'></main:Tf>
+  <main:Upload vg-if='c.Open == "upload"'></main:Upload>
+  <main:Wsgen vg-if='c.Open == "wsgen"'></main:Wsgen>
 </div>
 
 <script type="application/x-go">
 import sjs "syscall/js"
 
-var valid []string = []string{"WordSearch", "Hella", "BestEver", "LetterBoxed", "Notes", "Wiki", "Tf", "Upload", "WSGen"}
+var pages map[string]map[string]string = map[string]map[string]string{
+  "Utilities": map[string]string{
+    "upload": "FileHaven",
+    "notes": "QwikNotes",
+  },
+  "Social": map[string]string{
+    "tf": "ThoughtFloat",
+    "bestever": "BestEver",
+    "wiki": "Elemental Wiki",
+  },
+  "Puzzles": map[string]string{
+    "letterboxed": "LetterBoxed",
+    "wsgen": "WSGen",
+    "wordsearch": "WordSearch",
+  },
+  "Fun": map[string]string{
+    "hella": "Hella",
+  },
+}
+var keys []string = make([]string, 0)
+var pageVals map[string][]string = make(map[string][]string, 0)
 
 type Root struct {
   Open string `vugu:"data"`
   ShowWasm bool `vugu:"data"`
   ShowGo bool   `vugu:"data"`
   ShowVugu bool `vugu:"data"`
+  OpenTab string `vugu: "data"`
   Ee vugu.EventEnv
 }
 
 func (c *Root) isOpen(component string) string {
-  if component == "" && c.Open == "" {
-    return "active"
-  } else if component != "" && c.Open != ""  {
+  if component == c.OpenTab {
     return "active"
   }
   return ""
 }
 
 func (c *Root) Init(ctx vugu.InitCtx) {
+  if len(keys) == 0 {
+    for key, value := range pages {
+      keys = append(keys, key)
+      pageVals[key] = make([]string, 0)
+      for k := range value {
+        pageVals[key] = append(pageVals[key], k)
+      }
+    }
+  }
+
   loc := js.Global().Get("window").Get("location").Get("href").String()
   loc = strings.Replace(loc, "#", "", -1)
   c.Open = ""
+  c.OpenTab = ""
   if strings.Contains(loc, "?page=") {
     pageName := strings.Split(strings.Split(loc, "?page=")[1], "&")[0]
-    for _, val := range valid {
-      if strings.ToLower(pageName) == strings.ToLower(val) {
-        c.Open = val
+    for k, val := range pages {
+      _, exists := val[strings.ToLower(pageName)]
+      if exists {
+        c.Open = strings.ToLower(pageName)
+        c.OpenTab = k
       }
     }
   }
   if c.Ee != nil {
     c.Ee.Lock()
-   c.Ee.UnlockRender()
+    c.Ee.UnlockRender()
   }
 }
 
-func (c *Root) ChangePage(newPage string, ee vugu.EventEnv) {
+func (c *Root) ChangePage(newPage string, newTab string, ee vugu.EventEnv) {
   c.Ee = ee
   c.Open = newPage
+  c.OpenTab = newTab
   js.Global().Get("window").Get("history").Call("pushState", js.ValueOf(map[string]interface{}{}), js.ValueOf(""), js.ValueOf("?page=" + newPage))
   sjs.Global().Get("window").Set("onpopstate", sjs.FuncOf(func(this sjs.Value, args []sjs.Value) interface{} {
     c.Init(nil)
