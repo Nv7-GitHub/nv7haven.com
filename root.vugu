@@ -72,6 +72,7 @@
   <main:Tf vg-if='c.Open == "tf"'></main:Tf>
   <main:Upload vg-if='c.Open == "upload"'></main:Upload>
   <main:Wsgen vg-if='c.Open == "wsgen"'></main:Wsgen>
+  <main:Ideas vg-if='c.Open == "ideas"'></main:Ideas>
 </div>
 
 <script type="application/x-go">
@@ -86,6 +87,7 @@ var pages map[string]map[string]string = map[string]map[string]string{
     "tf": "ThoughtFloat",
     "bestever": "BestEver",
     "wiki": "Elemental Wiki",
+    "ideas": "Ideas",
   },
   "Puzzles": map[string]string{
     "letterboxed": "LetterBoxed",

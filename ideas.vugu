@@ -1,0 +1,177 @@
+<div class="container text-center mt-3">
+  <h1>Ideas</h1>
+  <p class="lead">
+    I was having trouble coming up with ideas for what I should make next, so I decided what I would make next would decide what I make next! Basically you suggest ideas and people vote on it.
+  </p>
+
+  <ul class="nav nav-pills float-right mb-1">
+    <li class="nav-item">
+      <a class="nav-link disabled">Sort By</a>
+    </li>
+    <li class="nav-item">
+      <a :class='c.getClass("votes")' @click='c.Sort = "votes"; go c.Update(event.EventEnv())' href="#">Votes</a>
+    </li>
+    <li class="nav-item">
+      <a :class='c.getClass("new")' @click='c.Sort = "new"; go c.Update(event.EventEnv())' href="#">New</a>
+    </li>
+  </ul>
+
+  <div class="input-group text-center">
+    <vgform:Input type="text" class="form-control" :Value="vgform.StringPtr{&c.Title}" placeholder="Title"></vgform:Input>
+    <div class="input-group-append">
+      <button class="btn btn-outline-secondary" @click="go c.Create(event.EventEnv())">
+        <i class="fa fa-plus"></i>
+      </button>
+    </div>
+  </div>
+
+  <ul class="list-group mt-3">
+    <a class="list-group-item" vg-for="i, item := range c.Items"> 
+      <h1 vg-content="item.Title"></h1>
+      <div class="progress">
+        <div class="progress-bar progress-bar-striped bg-success" :id='fmt.Sprintf("1 %d", i)' :style='fmt.Sprintf("width: %d%%", int(float32(item.Yes)/float32(item.Yes+item.No)*100))'></div>
+        <div class="progress-bar progress-bar-striped bg-danger" :id='fmt.Sprintf("0 %d", i)' :style='fmt.Sprintf("width: %d%%", int(float32(item.No)/float32(item.Yes+item.No)*100))'></div>
+      </div>
+
+      <div class="btn-group mt-1">
+        <button :class="`btn btn-success` + c.IsDisabled(i)" .disabled="item.HasVoted" @click="go c.Vote(event.EventEnv(), i, `1`)">Yes!</button>
+        <button :class="`btn btn-danger` + c.IsDisabled(i)" .disabled="item.HasVoted" @click="go c.Vote(event.EventEnv(), i, `0`)">No</button>
+      </div>
+    </a>
+  </ul>
+
+  <img style="position: absolute; top: calc(50% - 2.5vw); left: calc(50% - 2.5vw); width: 10vh; height: auto; z-index: 100;" src="/static/loading.gif" vg-if="c.Loading">
+</div>
+
+<script type="application/x-go">
+type idea struct {
+	ID        int
+	CreatedOn int
+	Yes       int
+	No        int
+	Title     string
+	HasVoted  bool
+}
+
+type Ideas struct {
+  Loading bool `vugu: "data"`
+  Items []idea `vugu: "data"`
+  Sort string `vugu: "data"`
+  Title string `vugu: "data"`
+}
+
+func (c *Ideas) handle(err error, critical ...bool) {
+  if err != nil {
+    js.Global().Call("alert", err.Error())
+    if len(critical) > 0 {
+      panic(err)
+    }
+  }
+}
+
+func (c *Ideas) Request(url string, data interface{}) {
+  res, err := http.Get(url)
+  c.handle(err, true)
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  c.handle(err, true)
+  if res.StatusCode == 500 {
+    c.handle(errors.New(string(output)), true)
+  }
+  err = json.Unmarshal(output, data)
+  c.handle(err, true)
+}
+
+func (c *Ideas) Update(ee vugu.EventEnv) {
+  if ee != nil {
+    ee.Lock()
+    c.Loading = true
+    ee.UnlockRender()
+  }
+  c.Request("https://api.nv7haven.tk/get_ideas/" + c.Sort, &c.Items)
+  if ee != nil {
+    ee.Lock()
+    c.Loading = false
+    ee.UnlockRender()
+  }
+}
+
+func (c *Ideas) getClass(class string) string {
+  if c.Sort == class {
+    return "nav-link active"
+  }
+  return "nav-link"
+}
+
+func (c *Ideas) Init(ctx vugu.InitCtx) {
+  c.Sort = "votes"
+  go c.Update(ctx.EventEnv())
+}
+
+func (c *Ideas) Create(ee vugu.EventEnv) {
+  ee.Lock()
+  c.Loading = true
+  ee.UnlockRender()
+  res, err := http.Get("https://api.nv7haven.tk/new_idea/" + url.PathEscape(c.Title))
+  c.handle(err, true)
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  c.handle(err, true)
+  if res.StatusCode == 500 {
+    c.handle(errors.New(string(output)), true)
+  }
+  if string(output) != "" {
+    js.Global().Call("alert", output)
+  }
+  ee.Lock()
+  c.Loading = false
+  ee.UnlockRender()
+  go c.Update(ee)
+}
+
+func (c *Ideas) Vote(ee vugu.EventEnv, index int, vote string) { // "0", "1"
+  ee.Lock()
+  c.Loading = true
+  ee.UnlockRender()
+
+  res, err := http.Get("https://api.nv7haven.tk/update_idea/" + strconv.Itoa(c.Items[index].ID) + "/" + vote)
+  c.handle(err, true)
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  c.handle(err, true)
+  if res.StatusCode == 500 {
+    c.handle(errors.New(string(output)), true)
+  }
+  vals := strings.Split(string(output), "\n")
+  if len(vals) != 2 {
+    c.handle(errors.New(vals[0]), true)
+  }
+
+  ee.Lock()
+  c.Loading = false
+  ee.UnlockRender()
+
+  c.Items[index].Yes, err = strconv.Atoi(vals[0])
+  c.handle(err, true)
+  c.Items[index].No, err = strconv.Atoi(vals[1])
+  c.handle(err, true)
+  c.Items[index].HasVoted = true
+  item := c.Items[index]
+  yes := strconv.Itoa(int(float32(item.Yes)/float32(item.Yes+item.No)*100)) + "%"
+  no := strconv.Itoa(int(float32(item.Yes)/float32(item.Yes+item.No)*100)) + "%"
+  js.Global().Get("document").Call("getElementById", fmt.Sprintf("1 %d", index)).Get("style").Set("width", yes)
+  js.Global().Get("document").Call("getElementById", fmt.Sprintf("0 %d", index)).Get("style").Set("width", no)
+  time.Sleep(time.Second / 2)
+
+  go c.Update(ee)
+}
+
+func (c *Ideas) IsDisabled(index int) string {
+  if c.Items[index].HasVoted {
+    return " disabled"
+  }
+  return ""
+}
+
+
+</script>
