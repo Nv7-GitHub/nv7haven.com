@@ -26,7 +26,7 @@
   </div>
 
   <ul class="list-group mt-3">
-    <a class="list-group-item" vg-for="i, item := range c.Items"> 
+    <li class="list-group-item" vg-for="i, item := range c.Items"> 
       <h1 vg-content="item.Title"></h1>
       <div class="progress">
         <div class="progress-bar progress-bar-striped bg-success" :id='fmt.Sprintf("1 %d", i)' :style='fmt.Sprintf("width: %d%%", int(float32(item.Yes)/float32(item.Yes+item.No)*100))'></div>
@@ -37,7 +37,7 @@
         <button :class="`btn btn-success` + c.IsDisabled(i)" .disabled="item.HasVoted" @click="go c.Vote(event.EventEnv(), i, `1`)">Yes!</button>
         <button :class="`btn btn-danger` + c.IsDisabled(i)" .disabled="item.HasVoted" @click="go c.Vote(event.EventEnv(), i, `0`)">No</button>
       </div>
-    </a>
+    </li>
   </ul>
 
   <img style="position: absolute; top: calc(50% - 2.5vw); left: calc(50% - 2.5vw); width: 10vh; height: auto; z-index: 100;" src="/static/loading.gif" vg-if="c.Loading">
