@@ -73,6 +73,7 @@
   <main:Upload vg-if='c.Open == "upload"'></main:Upload>
   <main:Wsgen vg-if='c.Open == "wsgen"'></main:Wsgen>
   <main:Ideas vg-if='c.Open == "ideas"'></main:Ideas>
+  <main:Breakdown vg-if='c.Open == "breakdown"'></main:Breakdown>
 </div>
 
 <script type="application/x-go">
@@ -96,6 +97,7 @@ var pages map[string]map[string]string = map[string]map[string]string{
   },
   "Fun": map[string]string{
     "hella": "Hella",
+    "breakdown": "BreakDown",
   },
 }
 var keys []string = make([]string, 0)

@@ -1,0 +1,76 @@
+<div class="container text-center mt-3">
+  <h1>Breakdown</h1>
+  <p class="lead">
+    This uses Natural Language Processing to breakdown a sentence.
+    This program is using a go library called <a href="https://github.com/jdkato/prose">prose</a>.
+  </p>
+
+  <vgform:Textarea :Value='vgform.StringPtrDefault(&c.Input, "")' class="form-control"></vgform:Textarea>
+  <br>
+
+  <table class="table table-striped" vg-if="len(c.Output) > 0">
+    <thead>
+      <tr>
+        <th scope="col">Words</th>
+        <th scope="col">Part Of Speech</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr vg-for="_, val := range c.Output">
+        <td vg-content="val.Words"></td>
+        <td vg-content="val.Part"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button class="btn btn-primary" @click="go c.Calculate(event.EventEnv())">BreakDown!</button>
+  <img style="position: absolute; top: calc(50% - 2.5vw); left: calc(50% - 2.5vw); width: 5vw; height: auto;" src="/static/loading.gif" vg-if="c.Loading">
+</div>
+
+<script type="application/x-go">
+import (
+  "fmt"
+  "net/url"
+  "net/http"
+  "io/ioutil"
+
+  "github.com/vugu/vugu/vgform"
+)
+
+type Breakdown struct {
+  Input string `vugu:"data"`
+  Output []section `vugu:"data"`
+  Loading bool `vugu:"data"`
+}
+
+type section struct {
+	Part  string
+	Words string
+}
+
+
+func (c *Breakdown) Calculate(ee vugu.EventEnv) {
+  ee.Lock()
+  c.Loading = true
+  ee.UnlockRender()
+  
+  res, err := http.Get("https://api.nv7haven.tk/breakdown/" + url.PathEscape(c.Input))
+  if err != nil {
+    panic(err)
+  }
+  defer res.Body.Close()
+  output, err := ioutil.ReadAll(res.Body)
+  if err != nil {
+    panic(err)
+  }
+  err = json.Unmarshal(output, &c.Output)
+  if err != nil {
+    panic(err)
+  }
+
+  ee.Lock()
+  c.Loading = false
+  c.Input = ""
+  ee.UnlockRender()
+}
+</script>
