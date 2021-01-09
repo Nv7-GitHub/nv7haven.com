@@ -22,7 +22,7 @@
       </button>
 
       <nav class="collapse navbar-collapse" role="navigation">
-        <ul class="navbar-nav ml-auto nav">
+        <ul class="navbar-nav flex-row flex-wrap ms-md-auto">
           <li class="nav-item">
             <a :class='"nav-link " + c.isOpen("")' @click='c.ChangePage("", "", event.EventEnv())'>Home</a>
           </li>
