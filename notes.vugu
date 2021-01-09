@@ -5,7 +5,7 @@
 </style>
 
 <div class="container text-center mt-3">
-  <div vg-if="!c.NoteTaking">
+  <div vg-if="!c.NoteTaking && !c.ModalShowing">
     <h1>QwikNotes</h1>
 
     <p class="lead">
@@ -16,40 +16,13 @@
 
     <p class="lead flex-fill">
       <div class="input-group">
-        <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#newNote" @click="c.ModalShowing = true">
+        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#newNote" @click="c.ModalShowing = true">
           <i class="fa fa-plus"></i>
         </button>
         <vgform:Input type="search" class="form-control" :Value="vgform.StringPtr{&c.SearchQuery}" placeholder="Search..."></vgform:Input>
         <button class="btn btn-outline-secondary" @click="go c.Search(event.EventEnv())">
             <i class="fa fa-search"></i>
         </button>
-      </div>
-
-      <span vg-if="c.ModalShowing" vg-content="c.OpenModal()"></span>
-
-      <div class="modal fade" id="newNote" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">New Note</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="c.ModalShowing = false">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <div class="form-group">
-                <label>Note Name</label>
-                <vgform:Input type="text" class="form-control" :Value="vgform.StringPtr{&c.Name}" placeholder="Name"></vgform:Input>
-                <label>Password (optional)</label>
-                <vgform:Input type="text" class="form-control" :Value="vgform.StringPtr{&c.Password}" placeholder="Password"></vgform:Input>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="c.ModalShowing = false">Close</button>
-              <button type="button" class="btn btn-primary" @click="go c.NewNote(event.EventEnv())">Create Note</button>
-            </div>
-          </div>
-        </div>
       </div>
     </p>
 
@@ -69,6 +42,19 @@
     </div>
 
     <button class="btn btn-primary" style="left: 2vw; bottom: 2vh; position: fixed;" @click='c.NoteTaking = false; c.SearchQuery = ""; go c.Search(event.EventEnv())'><i class="fa fa-arrow-left"></i>&nbsp;back</button>
+  </div>
+
+  <div vg-if="c.ModalShowing">
+    <div class="form-group">
+      <label>Note Name</label>
+      <vgform:Input type="text" class="form-control" :Value="vgform.StringPtr{&c.Name}" placeholder="Name"></vgform:Input>
+      <label>Password (optional)</label>
+      <vgform:Input type="text" class="form-control" :Value="vgform.StringPtr{&c.Password}" placeholder="Password"></vgform:Input>
+    </div>
+    <div class="btn-group mt-3">
+    <button class="btn btn-danger" @click='c.ModalShowing = false'><i class="fa fa-arrow-left"></i>&nbsp;Back</button>
+      <button class="btn btn-success" @click="go c.NewNote(event.EventEnv())"><i class="fa fa-save"></i>&nbsp;Create</button>
+    </div>
   </div>
 
   <div class="overlay" vg-if="c.Loading"><div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div></div>
@@ -142,15 +128,6 @@ func (c *Notes) NewNote(ee vugu.EventEnv) {
   c.Loading = false
   c.ModalShowing = false
   ee.UnlockRender()
-}
-
-func (c *Notes) OpenModal() string {
-  go func() {
-    js.Global().Call("$", "#newNote").Call("modal", "hide")
-    time.Sleep(time.Second/2)
-    js.Global().Call("$", "#newNote").Call("modal", "show")
-  }()
-  return ""
 }
 
 func (c *Notes) Open(ee vugu.EventEnv) bool {
