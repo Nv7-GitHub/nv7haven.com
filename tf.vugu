@@ -89,7 +89,7 @@
       </div>
   </div>
 
- <img style="position: absolute; top: calc(50% - 2.5vw); left: calc(50% - 2.5vw); width: 10vh; height: auto; z-index: 100;" src="/static/loading.gif" vg-if="c.Loading"></img>
+ <div class="overlay" vg-if="c.Loading"><div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div></div>
 </div>
 
 <script type="application/x-go">
