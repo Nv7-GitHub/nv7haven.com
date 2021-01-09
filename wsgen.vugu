@@ -6,11 +6,9 @@
 
   <div class="input-group mb-3">
     <vgform:Input type="text" class="form-control" :Value="vgform.StringPtr{&c.Input}" placeholder="Enter item to be put into word search here..."></vgform:Input>
-    <div class="input-group-append">
-      <button class="btn btn-outline-secondary" @click="c.Items = append(c.Items, c.Input); c.Input = ``">
-        <i class="fa fa-plus"></i>
-      </button>
-    </div>
+    <button class="btn btn-outline-secondary" @click="c.Items = append(c.Items, c.Input); c.Input = ``">
+      <i class="fa fa-plus"></i>
+    </button>
   </div>
 
   <ul class="list-group"> 
@@ -22,22 +20,25 @@
     </li>
   </ul>
 
-  <div class="form-group row mt-3">
+  <div class="form-group row mb-3 mt-3">
     <label class="col-sm-2 col-form-label">Width</label>
     <div class="col-sm-10">
       <vgform:Input type="number" class="form-control" :Value="vgform.StringPtr{&c.Width}"></vgform:Input>
     </div>
   </div>
-  <div class="form-group row">
+  <div class="form-group row mb-3">
     <label class="col-sm-2 col-form-label">Height</label>
     <div class="col-sm-10">
       <vgform:Input type="number" class="form-control" :Value="vgform.StringPtr{&c.Height}"></vgform:Input>
     </div>
   </div>
-  <button class="btn btn-success" @click="c.Create()">Create WordSearch</button>
+  <button class="btn btn-success mb-3" @click="c.Create()">Create WordSearch</button>
 
   <p vg-content='vugu.HTML(strings.Replace(c.Output, "\n", "<br>", -1))' class="lead mt-3" vg-if="c.Output != ``"></p>
-  <button class="btn btn-success" @click="c.Copy()" vg-if="c.Output != ``">Copy Text</button>
+  <button class="btn btn-success" @click="c.Copy()" vg-if="c.Output != ``">
+    <i class="fa fa-clipboard"></i>
+    Copy Text
+  </button>
 </div>
 
 <script type="application/x-go">

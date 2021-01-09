@@ -4,16 +4,14 @@
     Have you ever wanted to share a file but have had no place to share it? Well this is where you can share it! We can process your files at 1 gigabit/second, so no need to worry about our server's speed! 
   </p>
 
-  <div class="custom-file mb-3 text-left">
-    <input type="file" class="custom-file-input" id="customFile" name="filename" @change="c.FileChange()">
-    <label class="custom-file-label" id="customFileLabel" for="customFile" vg-content="c.Filename"></label>
+  <div class="input-group mb-3 text-left">
+    <input type="file" class="form-control" id="customFile" name="filename" @change="c.FileChange()">
+    <button :class="c.GetButtonClass()" .disabled="c.Filename == `Choose a File`" @click="go c.UploadFile(event.EventEnv())" vg-if="!c.Loading">Upload Files</button>  
   </div>
 
   <p class="lead" vg-if="c.Link != ``">
     <a :href="c.Link">Download Link</a>
   </p>
-
-  <button :class="c.GetButtonClass()" .disabled="c.Filename == `Choose a File`" @click="go c.UploadFile(event.EventEnv())" vg-if="!c.Loading">Upload Files</button>  
   <div class="progress" vg-if="c.Loading">
     <div class="progress-bar progress-bar-striped progress-bar-animated" :style='"width: " + strconv.Itoa(c.Percent) + "%"' id="progress"></div>
   </div>

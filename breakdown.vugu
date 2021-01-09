@@ -23,8 +23,10 @@
     </tbody>
   </table>
 
-  <button class="btn btn-primary" @click="go c.Calculate(event.EventEnv())">BreakDown!</button>
-  <img style="position: absolute; top: calc(50% - 2.5vw); left: calc(50% - 2.5vw); width: 5vw; height: auto;" src="/static/loading.gif" vg-if="c.Loading">
+  <button class="btn btn-primary" @click="go c.Calculate(event.EventEnv())" .disabled="c.Loading">
+   <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" vg-if="c.Loading"></span>
+    BreakDown!
+  </button>
 </div>
 
 <script type="application/x-go">

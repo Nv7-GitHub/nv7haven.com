@@ -18,16 +18,14 @@
 
   <div class="input-group text-center">
     <vgform:Input type="text" class="form-control" :Value="vgform.StringPtr{&c.Title}" placeholder="Title"></vgform:Input>
-    <div class="input-group-append">
-      <button class="btn btn-outline-secondary" @click="go c.Create(event.EventEnv())">
-        <i class="fa fa-plus"></i>
-      </button>
-    </div>
+    <button class="btn btn-outline-secondary" @click="go c.Create(event.EventEnv())">
+      <i class="fa fa-plus"></i>
+    </button>
   </div>
 
   <ul class="list-group mt-3">
     <li class="list-group-item" vg-for="i, item := range c.Items"> 
-      <h1 vg-content="item.Title"></h1>
+      <h2 vg-content="item.Title"></h2>
       <div class="progress">
         <div class="progress-bar progress-bar-striped bg-success" :id='fmt.Sprintf("1 %d", i)' :style='fmt.Sprintf("width: %d%%", int(float32(item.Yes)/float32(item.Yes+item.No)*100))'></div>
         <div class="progress-bar progress-bar-striped bg-danger" :id='fmt.Sprintf("0 %d", i)' :style='fmt.Sprintf("width: %d%%", int(float32(item.No)/float32(item.Yes+item.No)*100))'></div>

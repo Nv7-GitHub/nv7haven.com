@@ -25,12 +25,10 @@
   <vgform:Input :Value='vgform.StringPtrDefault(&c.Word, "")' class="form-control" vg-if="c.BoardCalculated"></vgform:Input>
   <button class="btn btn-primary" @click="c.FindWord()" vg-if="c.BoardCalculated">Find Word</button>
 
-  <div vg-if='c.CouldntFind' class="alert alert-danger" role="alert">
+  <div vg-if='c.CouldntFind' class="alert alert-danger alert-dismissible fade show" role="alert">
       <h4 class="alert-heading">
         Couldn't Find That...
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close" @click="c.CouldntFind = false">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="c.CouldntFind = false"></button>
       </h4>
       <p>Sorry! We couldn't find that word. Maybe you made a typo?</p>
   </div>

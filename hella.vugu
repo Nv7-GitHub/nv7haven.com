@@ -8,8 +8,10 @@
   <vgform:Textarea :Value='vgform.StringPtrDefault(&c.Input, "")' class="form-control"></vgform:Textarea>
   <br>
   <p vg-content="c.Output" vg-if='c.Output != ""'></p>
-  <button class="btn btn-primary" @click="go c.Calculate(event.EventEnv())">Hella-ify!</button>
-  <img style="position: absolute; top: calc(50% - 2.5vw); left: calc(50% - 2.5vw); width: 5vw; height: auto;" src="/static/loading.gif" vg-if="c.Loading">
+  <button class="btn btn-primary" @click="go c.Calculate(event.EventEnv())" .disabled="c.Loading">
+   <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" vg-if="c.Loading"></span>
+    Hella-ify!
+  </button>
 </div>
 
 <script type="application/x-go">

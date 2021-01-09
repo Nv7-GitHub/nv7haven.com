@@ -32,7 +32,7 @@
       This is my take at <a href="https://tf.zelo.dev/">thoughtfloat, by zelo101</a>. I thought it would be fun to try to make it myself and implement various features. For the signature Zelo spinner, click <a href="#" @click="c.Spinning = !c.Spinning">here</a>!
     </p>
 
-    <ul class="nav nav-pills float-right mb-1">
+    <ul class="nav nav-pills float-end mb-1">
       <li class="nav-item">
         <a class="nav-link disabled">Sort By</a>
       </li>
@@ -45,17 +45,13 @@
     </ul>
     
     <div class="input-group mb-3">
-      <div class="input-group-prepend">
-        <button class="btn btn-outline-secondary" @click="c.HomeOpen = false; c.NewPostOpen = true">
-          <i class="fa fa-plus"></i>
-        </button>
-      </div>
+      <button class="btn btn-outline-secondary" @click="c.HomeOpen = false; c.NewPostOpen = true">
+        <i class="fa fa-plus"></i>
+      </button>
       <vgform:Input type="search" class="form-control" :Value="vgform.StringPtr{&c.SearchQuery}" placeholder="Search..."></vgform:Input>
-      <div class="input-group-append">
-        <button class="btn btn-outline-secondary" @click="go c.Search(event.EventEnv())">
-            <i class="fa fa-search"></i>
-        </button>
-      </div>
+      <button class="btn btn-outline-secondary" @click="go c.Search(event.EventEnv())">
+          <i class="fa fa-search"></i>
+      </button>
     </div>
 
     <ul class="list-group">
@@ -87,11 +83,9 @@
 
     <div class="input-group text-center">
         <vgform:Input type="text" class="form-control" :Value="vgform.StringPtr{&c.Comment}" placeholder="Comment?"></vgform:Input>
-        <div class="input-group-append">
-          <button class="btn btn-outline-secondary" @click="go c.Reply(event.EventEnv())">
-              <i class="fa fa-check"></i>
-          </button>
-        </div>
+        <button class="btn btn-outline-secondary" @click="go c.Reply(event.EventEnv())">
+            <i class="fa fa-check"></i>
+        </button>
       </div>
   </div>
 

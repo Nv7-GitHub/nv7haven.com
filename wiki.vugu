@@ -15,11 +15,9 @@
   <div vg-if="!c.ElementOpen">
     <div class="input-group">
       <vgform:Input type="search" class="form-control" :Value="vgform.StringPtr{&c.SearchQuery}" placeholder="Search..."></vgform:Input>
-      <div class="input-group-append">
-        <button class="btn btn-outline-secondary" @click="go c.Search(event.EventEnv())">
-            <i class="fa fa-search"></i>
-        </button>
-      </div>
+      <button class="btn btn-outline-secondary" @click="go c.Search(event.EventEnv())">
+          <i class="fa fa-search"></i>
+      </button>
     </div>
 
     <br>

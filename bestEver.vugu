@@ -24,7 +24,10 @@
       <div class="form-group mx-sm-1 mb-2">
         <vgform:Input type="text" class="form-control" :Value="vgform.StringPtr{&c.Suggestion}" placeholder="Suggestion"></vgform:Input>
       </div>
-      <button class="btn btn-primary mb-2" @click="go c.Suggest(event.EventEnv())">Submit</button>
+      <button class="btn btn-primary" @click="go c.Suggest(event.EventEnv())" .disabled="c.SuggestLoading">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" vg-if="c.SuggestLoading"></span>
+        Suggest
+      </button>
     </div>
   </p>
   <p class="lead" vg-if='c.Open == "Vote"'>
@@ -84,11 +87,12 @@ type BestEver struct {
   Leaderboard []string
   LocalStorage js.Value
   Elems string `vugu: "data"`
+  SuggestLoading bool `vugu: "data"`
 }
 
 func (c *BestEver) Suggest(ee vugu.EventEnv) {
   ee.Lock()
-  c.Loading = true
+  c.SuggestLoading = true
   ee.UnlockRender()
 
   res, err := http.Get(prefix + "bestever_new_suggest/" + url.PathEscape(c.Suggestion))
@@ -105,7 +109,7 @@ func (c *BestEver) Suggest(ee vugu.EventEnv) {
   }
 
   ee.Lock()
-  c.Loading = false
+  c.SuggestLoading = false
   c.Suggestion = ""
   ee.UnlockRender()
 }

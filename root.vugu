@@ -6,7 +6,7 @@
         Nv7's Projects
       </a>
 
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-label="Navbar Toggler">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
@@ -19,12 +19,12 @@
             <a class="nav-link" href="https://discord.com/oauth2/authorize?client_id=788185365533556736&scope=bot&permissions=201329728&redirect_uri=https%3A%2F%2Fnv7haven.tk">Nv7 Bot</a>
           </li>
 
-          <li :class='"dropdown nav-item " + c.isOpen(key)' vg-for="_, key := range keys">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" vg-content="key" href="#">
+          <li class="dropdown nav-item"  vg-for="_, key := range keys">
+            <a :class='"nav-link dropdown-toggle " + c.isOpen(key)' href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" vg-content="key" href="#">
             </a>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" @click='c.ChangePage(k, key, event.EventEnv())' vg-for="_, k := range pageVals[key]" vg-content="pages[key][k]"></a>
-            </div>
+            <ul class="dropdown-menu">
+              <li class="dropdown-item" @click='c.ChangePage(k, key, event.EventEnv())' vg-for="_, k := range pageVals[key]" vg-content="pages[key][k]"></li>
+            </ul>
           </li>
         </ul>
       </nav>

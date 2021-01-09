@@ -16,17 +16,13 @@
 
     <p class="lead flex-fill">
       <div class="input-group">
-        <div class="input-group-prepend">
-          <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#newNote" @click="c.ModalShowing = true">
-            <i class="fa fa-plus"></i>
-          </button>
-        </div>
+        <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#newNote" @click="c.ModalShowing = true">
+          <i class="fa fa-plus"></i>
+        </button>
         <vgform:Input type="search" class="form-control" :Value="vgform.StringPtr{&c.SearchQuery}" placeholder="Search..."></vgform:Input>
-        <div class="input-group-append">
-          <button class="btn btn-outline-secondary" @click="go c.Search(event.EventEnv())">
-              <i class="fa fa-search"></i>
-          </button>
-        </div>
+        <button class="btn btn-outline-secondary" @click="go c.Search(event.EventEnv())">
+            <i class="fa fa-search"></i>
+        </button>
       </div>
 
       <span vg-if="c.ModalShowing" vg-content="c.OpenModal()"></span>
