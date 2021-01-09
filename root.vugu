@@ -21,8 +21,8 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <nav class="collapse navbar-collapse" role="navigation">
-        <ul class="navbar-nav flex-row flex-wrap ms-md-auto">
+      <nav class="collapse navbar-collapse justify-content-end" role="navigation">
+        <ul class="navbar-nav">
           <li class="nav-item">
             <a :class='"nav-link " + c.isOpen("")' @click='c.ChangePage("", "", event.EventEnv())'>Home</a>
           </li>
