@@ -6,7 +6,7 @@
         Nv7's Projects
       </a>
 
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-label="Navbar Toggler">
         <span class="navbar-toggler-icon"></span>
       </button>
 
