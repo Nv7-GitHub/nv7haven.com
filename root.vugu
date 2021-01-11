@@ -48,7 +48,9 @@
     This page is being rendered via
     <a @click='event.PreventDefault();c.ShowWasm=!c.ShowWasm' href="https://webassembly.org/">WebAssembly</a>,
     and written in
-    <a @click='event.PreventDefault();c.ShowGo=!c.ShowGo' href="https://golang.org/">Go</a>,
+    <a @click='event.PreventDefault();c.ShowGo=!c.ShowGo' href="https://golang.org/">
+    Go <span class="visually-hidden">Programming Language</span>
+    </a>,
     using
     <a @click='event.PreventDefault();c.ShowVugu=!c.ShowVugu' href="https://vugu.org/">Vugu</a>.
     Thank you for checking out Nv7's Projects and be sure to check out some of the projects.</p>
