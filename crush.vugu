@@ -1,0 +1,37 @@
+<div class="container text-center mt-3">
+  <h1>UniCrush</h1>
+  <p class="lead">
+    This is a copy of the HTwin's <a href="https://htwins.net/unicrush/">Unicrush</a>. It seemed like it would be fun, so I decided to try to make it myself! Go check out their Unicrush for more info!
+  </p>
+
+  <vgform:Textarea :Value='vgform.StringPtrDefault(&c.Input, "")' class="form-control"></vgform:Textarea>
+  <p vg-content="c.Output" vg-if='c.Output != ""' class="mt-3"></p>
+  <button :class='"btn btn-primary " + func() string {if c.Output=="" {return "mt-3"}; return ""}()' @click="c.Calculate()">
+    Crush!
+  </button>
+</div>
+
+<script type="application/x-go">
+import (
+  "fmt"
+  "net/url"
+  "net/http"
+  "io/ioutil"
+
+  "github.com/vugu/vugu/vgform"
+)
+
+type Crush struct {
+  Input string `vugu: "data"`
+  Output string `vugu: "data"`
+}
+
+func (c *Crush) Calculate() {
+  inp := c.Input
+  for _, val := range replacements {
+    inp = strings.Replace(inp, val.Text, val.Replacement, -1)
+  }
+  c.Output = inp
+  c.Input = ""
+}
+</script>
