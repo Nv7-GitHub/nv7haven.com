@@ -92,16 +92,8 @@ func (c *Wiki) Search(ee vugu.EventEnv) {
     ee.UnlockRender()
   }
   
-  res, err := http.Get("https://api.nv7haven.tk/search_elems/" + url.PathEscape(c.SearchQuery + "%"))
-  if err != nil {
-    panic(err)
-  }
-  defer res.Body.Close()
-  output, err := ioutil.ReadAll(res.Body)
-  if err != nil {
-    panic(err)
-  }
-  err = json.Unmarshal(output, &c.Results)
+  output := get("https://api.nv7haven.tk/search_elems/" + url.PathEscape(c.SearchQuery + "%"))
+  err := json.Unmarshal([]byte(output), &c.Results)
   if err != nil {
     panic(err)
   }
@@ -118,45 +110,21 @@ func (c *Wiki) Open(name string, ee vugu.EventEnv) {
   c.Loading = true
   ee.UnlockRender()
 
-  res, err := http.Get("https://api.nv7haven.tk/get_elem/" + url.PathEscape(name))
-  if err != nil {
-    panic(err)
-  }
-  defer res.Body.Close()
-  output, err := ioutil.ReadAll(res.Body)
-  if err != nil {
-    panic(err)
-  }
-  err = json.Unmarshal(output, &c.Element)
+  output := get("https://api.nv7haven.tk/get_elem/" + url.PathEscape(name))
+  err := json.Unmarshal([]byte(output), &c.Element)
   if err != nil {
     panic(err)
   }
 
   if len(c.Element.Parents) == 2 {
-    res, err = http.Get("https://api.nv7haven.tk/get_elem/" + url.PathEscape(c.Element.Parents[0]))
-    if err != nil {
-      panic(err)
-    }
-    defer res.Body.Close()
-    output, err = ioutil.ReadAll(res.Body)
-    if err != nil {
-      panic(err)
-    }
-    err = json.Unmarshal(output, &c.Parent1)
+    output = get("https://api.nv7haven.tk/get_elem/" + url.PathEscape(c.Element.Parents[0]))
+    err = json.Unmarshal([]byte(output), &c.Parent1)
     if err != nil {
       panic(err)
     }
 
-    res, err = http.Get("https://api.nv7haven.tk/get_elem/" + url.PathEscape(c.Element.Parents[1]))
-    if err != nil {
-      panic(err)
-    }
-    defer res.Body.Close()
-    output, err = ioutil.ReadAll(res.Body)
-    if err != nil {
-      panic(err)
-    }
-    err = json.Unmarshal(output, &c.Parent2)
+    output = get("https://api.nv7haven.tk/get_elem/" + url.PathEscape(c.Element.Parents[1]))
+    err = json.Unmarshal([]byte(output), &c.Parent2)
     if err != nil {
       panic(err)
     }

@@ -68,15 +68,8 @@ func (c *Ideas) handle(err error, critical ...bool) {
 }
 
 func (c *Ideas) Request(url string, data interface{}) {
-  res, err := http.Get(url)
-  c.handle(err, true)
-  defer res.Body.Close()
-  output, err := ioutil.ReadAll(res.Body)
-  c.handle(err, true)
-  if res.StatusCode == 500 {
-    c.handle(errors.New(string(output)), true)
-  }
-  err = json.Unmarshal(output, data)
+  output := get(url)
+  err := json.Unmarshal([]byte(output), data)
   c.handle(err, true)
 }
 
@@ -110,14 +103,7 @@ func (c *Ideas) Create(ee vugu.EventEnv) {
   ee.Lock()
   c.Loading = true
   ee.UnlockRender()
-  res, err := http.Get("https://api.nv7haven.tk/new_idea/" + url.PathEscape(c.Title))
-  c.handle(err, true)
-  defer res.Body.Close()
-  output, err := ioutil.ReadAll(res.Body)
-  c.handle(err, true)
-  if res.StatusCode == 500 {
-    c.handle(errors.New(string(output)), true)
-  }
+  output := get("https://api.nv7haven.tk/new_idea/" + url.PathEscape(c.Title))
   if string(output) != "" {
     js.Global().Call("alert", output)
   }
@@ -132,14 +118,7 @@ func (c *Ideas) Vote(ee vugu.EventEnv, index int, vote string) { // "0", "1"
   c.Loading = true
   ee.UnlockRender()
 
-  res, err := http.Get("https://api.nv7haven.tk/update_idea/" + strconv.Itoa(c.Items[index].ID) + "/" + vote)
-  c.handle(err, true)
-  defer res.Body.Close()
-  output, err := ioutil.ReadAll(res.Body)
-  c.handle(err, true)
-  if res.StatusCode == 500 {
-    c.handle(errors.New(string(output)), true)
-  }
+  output := get("https://api.nv7haven.tk/update_idea/" + strconv.Itoa(c.Items[index].ID) + "/" + vote)
   vals := strings.Split(string(output), "\n")
   if len(vals) != 2 {
     c.handle(errors.New(vals[0]), true)
@@ -149,6 +128,7 @@ func (c *Ideas) Vote(ee vugu.EventEnv, index int, vote string) { // "0", "1"
   c.Loading = false
   ee.UnlockRender()
 
+  var err error
   c.Items[index].Yes, err = strconv.Atoi(vals[0])
   c.handle(err, true)
   c.Items[index].No, err = strconv.Atoi(vals[1])

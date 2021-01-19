@@ -68,7 +68,7 @@ import (
   "net/url"
   "net/http"
   "io/ioutil"
-  "encoding/json"
+  json "github.com/vugu/vjson"
 
   "github.com/vugu/vugu/vgform"
   "github.com/r3labs/sse/v2"
@@ -95,18 +95,7 @@ func (c *BestEver) Suggest(ee vugu.EventEnv) {
   c.SuggestLoading = true
   ee.UnlockRender()
 
-  res, err := http.Get(prefix + "bestever_new_suggest/" + url.PathEscape(c.Suggestion))
-  if err != nil {
-    panic(err)
-  }
-  defer res.Body.Close()
-  output, err := ioutil.ReadAll(res.Body)
-  if err != nil {
-    panic(err)
-  }
-  if string(output) != "" {
-    panic(errors.New(string(output)))
-  }
+  get(prefix + "bestever_new_suggest/" + url.PathEscape(c.Suggestion))
 
   ee.Lock()
   c.SuggestLoading = false
@@ -133,27 +122,12 @@ func (c *BestEver) Vote(ee vugu.EventEnv, side bool, skipping bool) {
     } else {
       val = c.LeftKey
     }
-    res, err := http.Get(prefix + "bestever_vote/" + strconv.Itoa(val))
-    if err != nil {
-      panic(err)
-    }
-    defer res.Body.Close()
-    output, err := ioutil.ReadAll(res.Body)
-    if err != nil {
-      panic(err)
-    }
-    if string(output) != "" {
-      panic(errors.New(string(output)))
-    }
+    get(prefix + "bestever_vote/" + strconv.Itoa(val))
   }
 
-  res, err := http.Get(prefix + "bestever_get_suggest/")
-  if err != nil {
-    panic(err)
-  }
-  defer res.Body.Close()
+  resp := get(prefix + "bestever_get_suggest/")
   var data map[int]string
-  err = json.NewDecoder(res.Body).Decode(&data)
+  err := json.Unmarshal([]byte(resp), &data)
   if err != nil {
     panic(err)
   }
@@ -163,19 +137,15 @@ func (c *BestEver) Vote(ee vugu.EventEnv, side bool, skipping bool) {
   }
 
   for len(keys) < 2 || c.HasDone(keys) {
-    res, err = http.Get(prefix + "bestever_get_suggest/")
-    if err != nil {
-      panic(err)
-    }
-    defer res.Body.Close()
-    data = make(map[int]string, 0)
-    err = json.NewDecoder(res.Body).Decode(&data)
+    resp := get(prefix + "bestever_get_suggest/")
+    var data map[int]string
+    err := json.Unmarshal([]byte(resp), &data)
     if err != nil {
       panic(err)
     }
     keys = make([]int, 0, len(data))
     for k := range data {
-        keys = append(keys, k)
+      keys = append(keys, k)
     }
   }
 
@@ -226,12 +196,8 @@ func (c *BestEver) LdbUpdate(ee vugu.EventEnv, wasClicked bool) {
     ee.UnlockRender()
   }
 
-  res, err := http.Get(prefix + "bestever_get_ldb/" + c.Elems)
-  if err != nil {
-    panic(err)
-  }
-  defer res.Body.Close()
-  err = json.NewDecoder(res.Body).Decode(&c.Leaderboard)
+  resp := get(prefix + "bestever_get_ldb/" + c.Elems)
+  err := json.Unmarshal([]byte(resp), &c.Leaderboard)
   if err != nil {
     panic(err)
   }

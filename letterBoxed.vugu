@@ -51,11 +51,7 @@ func handle(err error) {
 }
 
 func (c *LetterBoxed) Init(ctx vugu.InitCtx) {
-  resp, err := http.Get("/words.txt")
-  handle(err)
-  defer resp.Body.Close()
-  wordData, err := ioutil.ReadAll(resp.Body)
-  handle(err)
+  wordData := get("/words.txt")
   c.Words = strings.Split(string(wordData), "\n")
 
   c.List1 = "rin"

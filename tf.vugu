@@ -136,15 +136,8 @@ func (c *Tf) handle(err error, critical ...bool) {
 }
 
 func (c *Tf) Request(url string, data interface{}) {
-  res, err := http.Get(url)
-  c.handle(err, true)
-  defer res.Body.Close()
-  output, err := ioutil.ReadAll(res.Body)
-  c.handle(err, true)
-  if res.StatusCode == 500 {
-    c.handle(errors.New(string(output)), true)
-  }
-  err = json.Unmarshal(output, data)
+  output := get(url)
+  err := json.Unmarshal([]byte(output), data)
   c.handle(err, true)
 }
 
@@ -223,14 +216,7 @@ func (c *Tf) Like(ee vugu.EventEnv) {
   c.Loading = true
   ee.UnlockRender()
 
-  res, err := http.Get("https://api.nv7haven.tk/tf_like/" + url.PathEscape(c.OpenPage))
-  c.handle(err, true)
-  defer res.Body.Close()
-  output, err := ioutil.ReadAll(res.Body)
-  c.handle(err, true)
-  if res.StatusCode == 500 {
-    c.handle(errors.New(string(output)), true)
-  }
+  output := get("https://api.nv7haven.tk/tf_like/" + url.PathEscape(c.OpenPage))
   if string(output) != "" {
     c.handle(errors.New(string(output)))
   }

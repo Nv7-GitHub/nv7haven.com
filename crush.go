@@ -1,5 +1,6 @@
 package main
 
+// Replacement is a type for replacements
 type Replacement struct {
 	Text        string
 	Replacement string

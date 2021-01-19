@@ -83,16 +83,8 @@ func (c *Notes) Search(ee vugu.EventEnv) {
     ee.UnlockRender()
   }
   
-  res, err := http.Get("https://api.nv7haven.tk/note_search/" + url.PathEscape(c.SearchQuery + "%"))
-  if err != nil {
-    panic(err)
-  }
-  defer res.Body.Close()
-  output, err := ioutil.ReadAll(res.Body)
-  if err != nil {
-    panic(err)
-  }
-  err = json.Unmarshal(output, &c.Results)
+  output := get("https://api.nv7haven.tk/note_search/" + url.PathEscape(c.SearchQuery + "%"))
+  err := json.Unmarshal([]byte(output), &c.Results)
   if err != nil {
     panic(err)
   }
@@ -109,15 +101,7 @@ func (c *Notes) NewNote(ee vugu.EventEnv) {
   c.Loading = true
   ee.UnlockRender()
   
-  res, err := http.Get("https://api.nv7haven.tk/new_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password))
-  if err != nil {
-    panic(err)
-  }
-  defer res.Body.Close()
-  output, err := ioutil.ReadAll(res.Body)
-  if err != nil {
-    panic(err)
-  }
+  output := get("https://api.nv7haven.tk/new_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password))
   if string(output) != "" {
     panic(errors.New(string(output)))
   }
@@ -135,23 +119,15 @@ func (c *Notes) Open(ee vugu.EventEnv) bool {
   c.Loading = true
   ee.UnlockRender()
   
-  res, err := http.Get("https://api.nv7haven.tk/get_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password))
-  if err != nil {
-    panic(err)
-  }
-  defer res.Body.Close()
-  output, err := ioutil.ReadAll(res.Body)
-  if err != nil {
-    panic(err)
-  }
-  if res.StatusCode == 500 {
+  output, status := getCode("https://api.nv7haven.tk/get_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password))
+  if status == 500 {
     return false
   }
 
   ee.Lock()
   c.Loading = false
   c.NoteTaking = true
-  c.NoteData = string(output)
+  c.NoteData = output
   ee.UnlockRender()
   return true
 }
@@ -162,15 +138,7 @@ func (c *Notes) OpenNote(name string, ee vugu.EventEnv) {
   ee.UnlockRender()
 
   c.Name = name
-  res, err := http.Get("https://api.nv7haven.tk/has_password/" + url.PathEscape(c.Name))
-  if err != nil {
-    panic(err)
-  }
-  defer res.Body.Close()
-  output, err := ioutil.ReadAll(res.Body)
-  if err != nil {
-    panic(err)
-  }
+  output := get("https://api.nv7haven.tk/has_password/" + url.PathEscape(c.Name))
   if string(output) == "1" {
     c.Password = js.Global().Call("prompt", "What is the password?").String()
     working := c.Open(ee)
@@ -191,15 +159,7 @@ func (c *Notes) Save(ee vugu.EventEnv) {
   c.Loading = true
   ee.UnlockRender()
 
-  res, err := http.Post("https://api.nv7haven.tk/change_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password), "text/plain", bytes.NewBuffer([]byte(c.NoteData)))
-  if err != nil {
-    panic(err)
-  }
-  defer res.Body.Close()
-  output, err := ioutil.ReadAll(res.Body)
-  if err != nil {
-    panic(err)
-  }
+  output := post("https://api.nv7haven.tk/change_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password), "text/plain", bytes.NewBuffer([]byte(c.NoteData)))
   if string(output) != "" {
     panic(errors.New(string(output)))
   }
@@ -214,15 +174,7 @@ func (c *Notes) Delete(ee vugu.EventEnv) {
   c.Loading = true
   ee.UnlockRender()
 
-  res, err := http.Get("https://api.nv7haven.tk/delete_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password))
-  if err != nil {
-    panic(err)
-  }
-  defer res.Body.Close()
-  output, err := ioutil.ReadAll(res.Body)
-  if err != nil {
-    panic(err)
-  }
+  output := get("https://api.nv7haven.tk/delete_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password))
   if string(output) != "" {
     panic(errors.New(string(output)))
   }
