@@ -29,7 +29,6 @@
 
 <script type="application/x-go">
 import (
-  "net/http"
   "strings"
 
   "github.com/vugu/vugu/vgform"
