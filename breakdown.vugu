@@ -33,7 +33,6 @@
 import (
   "fmt"
   "net/url"
-  "io/ioutil"
 
   "github.com/vugu/vugu/vgform"
 )
