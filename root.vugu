@@ -88,6 +88,7 @@
   <main:Ideas vg-if='c.Open == "ideas"'></main:Ideas>
   <main:Breakdown vg-if='c.Open == "breakdown"'></main:Breakdown>
   <main:Crush vg-if='c.Open == "crush"'></main:Crush>
+  <main:Names vg-if='c.Open == "names"'></main:Names>
 </div>
 
 <script type="application/x-go">
@@ -113,6 +114,7 @@ var pages map[string]map[string]string = map[string]map[string]string{
   "Fun": map[string]string{
     "hella": "Hella",
     "crush": "UniCrush",
+    "names": "Names",
   },
 }
 var keys []string = make([]string, 0)

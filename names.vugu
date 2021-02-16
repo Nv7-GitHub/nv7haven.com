@@ -1,0 +1,88 @@
+<div class="container text-center mt-3">
+  <h1>Names</h1>
+  <p class="lead">
+    Get stats on your name!
+  </p>
+  <div vg-if="!c.NameOpen">
+    <div class="input-group">
+      <vgform:Input type="search" class="form-control" :Value="vgform.StringPtr{&c.SearchQuery}" placeholder="Search..."></vgform:Input>
+      <button class="btn btn-outline-secondary" @click="go c.Search(event.EventEnv())">
+          <i class="fa fa-search"></i>
+      </button>
+    </div>
+
+    <br>
+
+    <ul class="list-group">
+      <a class="list-group-item list-group-item-action" vg-for="_, item := range c.Results" vg-content="item" @click="go c.Open(item, event.EventEnv())"></a>
+    </ul>
+  </div>
+
+  <div vg-if="c.NameOpen">
+    <p class="lead text-center">
+      The name <span vg-content="c.Name.Name"></span> is a <span vg-if="!c.Name.IsMale">fe</span>male name. There are <span vg-content="c.Name.Population"></span> people who have the name <span vg-content="c.Name.Name"></span>!
+    </p>
+
+    <button class="btn btn-primary" style="left: 2vw; bottom: 2vh; position: fixed;" @click='c.NameOpen = false'><i class="fa fa-arrow-left"></i>&nbsp;back</button>
+  </div>
+
+  <div class="overlay" vg-if="c.Loading"><div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div></div>
+</div>
+
+<script type="application/x-go">
+import "github.com/lucasb-eyer/go-colorful"
+type Name struct {
+  Name string
+  IsMale bool
+  Population int
+}
+
+type Names struct {
+  Loading bool `vugu:"data"`
+  NameOpen bool `vugu:"data"`
+  Name Name `vugu:"data"`
+  Results []string `vugu: "data"`
+  SearchQuery string `vugu: "data"`
+}
+
+func (c *Names) Search(ee vugu.EventEnv) {
+  if ee != nil {
+    ee.Lock()
+    c.Loading = true
+    ee.UnlockRender()
+  }
+  
+  output := get("https://api.nv7haven.tk/search_names/" + url.PathEscape(c.SearchQuery + "%"))
+  err := json.Unmarshal([]byte(output), &c.Results)
+  if err != nil {
+    panic(err)
+  }
+
+  if ee != nil {
+    ee.Lock()
+    c.Loading = false
+    ee.UnlockRender()
+  }
+}
+
+func (c *Names) Open(name string, ee vugu.EventEnv) {
+  ee.Lock()
+  c.Loading = true
+  ee.UnlockRender()
+
+  output := get("https://api.nv7haven.tk/get_name/" + url.PathEscape(name))
+  err := json.Unmarshal([]byte(output), &c.Name)
+  if err != nil {
+    panic(err)
+  }
+
+  ee.Lock()
+  c.Loading = false
+  c.NameOpen = true
+  ee.UnlockRender()
+}
+
+func (c *Names) Init(ctx vugu.InitCtx) {
+  c.Search(ctx.EventEnv())
+}
+</script>
