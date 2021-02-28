@@ -27,7 +27,7 @@
             <a :class='"nav-link " + c.isOpen("")' @click='c.ChangePage("", "", event.EventEnv())'>Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="https://discord.com/oauth2/authorize?client_id=788185365533556736&scope=bot&permissions=469765184&redirect_uri=https%3A%2F%2Fnv7haven.tk">Nv7 Bot</a>
+            <a class="nav-link" href="https://discord.com/oauth2/authorize?client_id=788185365533556736&scope=bot&permissions=2617248832&redirect_uri=https%3A%2F%2Fnv7haven.tk">Nv7 Bot</a>
           </li>
 
           <li class="dropdown nav-item"  vg-for="_, key := range keys">
