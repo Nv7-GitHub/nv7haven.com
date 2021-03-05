@@ -45,6 +45,8 @@
         <span style="position: relative; top: 3vh;">+</span>
         <div class="element" vg-content="c.Parent2.Name" :style='"display: inline-block; background-color: " + c.ProcessColor(c.Parent2)'></div>
       </span>
+      <p class="lead text-center"><span vg-content="c.Element.Name"></span> was suggested by <span vg-content="c.Element.Creator"></span> and pioneered by <span vg-content="c.Element.Pioneer"></span>.</p>
+      <p class="lead text-center">Creator Mark: <span vg-content="c.Element.Comment"></span></p>
     </p>
 
     <button class="btn btn-primary" style="left: 2vw; bottom: 2vh; position: fixed;" @click='c.ElementOpen = false; c.SearchQuery = ""; go c.Search(event.EventEnv())'><i class="fa fa-arrow-left"></i>&nbsp;back</button>
