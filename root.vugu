@@ -89,6 +89,7 @@
   <main:Breakdown vg-if='c.Open == "breakdown"'></main:Breakdown>
   <main:Crush vg-if='c.Open == "crush"'></main:Crush>
   <main:Names vg-if='c.Open == "names"'></main:Names>
+  <main:Ldb vg-if='c.Open == "ldb"'></main:Ldb>
 </div>
 
 <script type="application/x-go">
@@ -103,8 +104,9 @@ var pages map[string]map[string]string = map[string]map[string]string{
   "Social": map[string]string{
     "tf": "ThoughtFloat",
     "bestever": "BestEver",
-    "wiki": "Elemental Wiki",
     "ideas": "Ideas",
+    "wiki": "Elemental Wiki",
+    "ldb": "Leaderboard",
   },
   "Puzzles": map[string]string{
     "letterboxed": "LetterBoxed",

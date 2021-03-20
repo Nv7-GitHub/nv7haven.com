@@ -1,0 +1,122 @@
+<div class="container text-center mt-3">
+  <h1>Nv7's Elemental Leaderboard</h1>
+  <p class="lead">
+    A leaderboard for element count in <a href="https://elem6.tk">Nv7's Elemental</a>!
+  </p>
+
+  <br>
+  <ul class="nav nav-pills float-start mb-1">
+    <li class="nav-item">
+      <a class="nav-link disabled">Sort By</a>
+    </li>
+    <li class="nav-item" vg-for="_, val := range orderTypes">
+      <a :class='c.getClass(val)' @click='c.Order = val; go c.Refresh(event.EventEnv())' href="#" vg-content="val"></a>
+    </li>
+  </ul>
+  <ul class="nav nav-pills float-end mb-1">
+    <li class="nav-item">
+      <a class="nav-link disabled">Leaderboard Type</a>
+    </li>
+    <li class="nav-item" vg-for="_, val := range ldbTypes">
+      <a :class='c.getClassLdb(val)' @click='c.Kind = val; go c.Refresh(event.EventEnv())' href="#" vg-content="val"></a>
+    </li>
+  </ul>
+
+  <table class="table mt5">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Name</th>
+        <th scope="col">Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr vg-for="i, val := range c.Ret.Items">
+        <th scope="row" vg-content="c.Page*c.Ret.PageLength+i+1"></th>
+        <td vg-content="val.Title"></td>
+        <td vg-content="val.Value"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="btn-group" role="group">
+    <button type="button" class="btn btn-primary" .disabled="c.Loading || (c.Page == 0)" @click="c.Page--; go c.Refresh(event.EventEnv())">
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" vg-if="c.Loading"></span>
+      <i class="fa fa-arrow-left"></i>&nbsp;
+      Previous Page
+    </button>
+    <button type="button" class="btn btn-primary" .disabled="c.Loading || (len(c.Ret.Items) < c.Ret.PageLength)" @click="c.Page++; go c.Refresh(event.EventEnv())">
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" vg-if="c.Loading"></span>
+      Next Page
+      &nbsp;<i class="fa fa-arrow-right"></i>
+    </button>
+  </div>
+
+  <br>
+  <br>
+</div>
+
+<script type="application/x-go">
+var ldbTypes = []string{"Player", "Color"}
+var orderTypes = []string{"Descending", "Ascending"}
+type ldbReturn struct {
+	PageLength int
+	Items      []ldbItem
+}
+type ldbItem struct {
+	Title string
+	Value int
+}
+
+type Ldb struct {
+  Loading bool `vugu:"data"`
+  Page int `vugu:"data"`
+  Kind string `vugu:"data"`
+  Ret ldbReturn `vugu:"data"`
+  Order string `vugu:"data"`
+}
+
+func (c *Ldb) getClass(name string) string {
+  class := "nav-link"
+  if c.Order == name {
+    class += " active"
+  }
+  return class
+}
+
+func (c *Ldb) getClassLdb(name string) string {
+  class := "nav-link"
+  if c.Kind == name {
+    class += " active"
+  }
+  return class
+}
+
+func (c *Ldb) Refresh(ee vugu.EventEnv) {
+  if ee != nil {
+    ee.Lock()
+    c.Loading = true
+    ee.UnlockRender()
+  }
+
+  order := "0"
+  if c.Order == "Ascending" {
+    order = "1"
+  }
+  txt := get("https://api.nv7haven.tk/ldb_query/" + order + "/" + strings.ToLower(c.Kind) + "/" + strconv.Itoa(c.Page))
+  err := json.Unmarshal([]byte(txt), &c.Ret)
+  handle(err)
+
+  if ee != nil {
+    ee.Lock()
+    c.Loading = false
+    ee.UnlockRender()
+  }
+}
+
+func (c *Ldb) Init(ctx vugu.InitCtx) {
+  c.Kind = ldbTypes[0]
+  c.Order = orderTypes[0]
+  c.Refresh(ctx.EventEnv())
+}
+</script>
