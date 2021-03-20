@@ -107,6 +107,12 @@ func (c *Ldb) Refresh(ee vugu.EventEnv) {
   err := json.Unmarshal([]byte(txt), &c.Ret)
   handle(err)
 
+  if c.Kind == "Color" {
+    for i, val := range c.Ret.Items {
+      c.Ret.Items[i].Title = strings.Title(val.Title)
+    }
+  }
+
   if ee != nil {
     ee.Lock()
     c.Loading = false
