@@ -18,7 +18,7 @@
       <a class="nav-link disabled">Leaderboard Type</a>
     </li>
     <li class="nav-item" vg-for="_, val := range ldbTypes">
-      <a :class='c.getClassLdb(val)' @click='c.Kind = val; go c.Refresh(event.EventEnv())' href="#" vg-content="val"></a>
+      <a :class='c.getClassLdb(val)' @click='c.Kind = val; c.Page = 0; go c.Refresh(event.EventEnv())' href="#" vg-content="val"></a>
     </li>
   </ul>
 
