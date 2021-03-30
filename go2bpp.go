@@ -143,6 +143,9 @@ func parseExpr(expr ast.Expr) string {
 		stm := expr.(*ast.BinaryExpr)
 		_, exists := compareKinds[stm.Op]
 		if exists {
+			if stm.Op == token.EQL {
+				stm.Op = token.ASSIGN
+			}
 			return fmt.Sprintf("[COMPARE %s %s %s]", parseExpr(stm.X), stm.Op, parseExpr(stm.Y))
 		}
 		return fmt.Sprintf("[MATH %s %s %s]", parseExpr(stm.X), stm.Op, parseExpr(stm.Y))
