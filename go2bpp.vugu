@@ -1,0 +1,62 @@
+<style>
+#editor { 
+  display: block;
+  width: 75vw;
+  height: 50vh;
+  position: relative;
+  left: 5vw;
+}
+#output {
+  height: 50vh;
+}
+</style>
+
+<div class="container text-center mt-3">
+  <h1>Go2B++</h1>
+  <p class="lead">
+    A go to B++ converter!
+    Builtin functions: <span vg-content="vugu.HTML(c.BuiltinFuncs)"></span>
+  </p>
+
+  <h2>Editor</h2>
+  <div id="editor">package main
+
+func main() {
+  helloworld := "Hello World!"
+  print(helloworld)
+}</div>
+
+  <button class="btn btn-primary mt-2 mb-2" @click="">Parse!</button>
+
+  <h2>Output</h2>
+  <p vg-if='c.TimeTaken != ""'>Parsed in <span vg-content="c.TimeTaken"></span>.</p>
+  <textarea class="form-control mb-5" vg-content="c.parse()" id="output"></textarea>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" onload="startEditor()"></script>
+  <script>
+  </script>
+</div>
+
+<script type="application/x-go">
+type Go2bpp struct {
+  Editor js.Value
+  HasLoaded bool
+  TimeTaken string
+  BuiltinFuncs string
+}
+
+func (c *Go2bpp) SetupEditor() {
+  c.Editor = js.Global().Get("ace").Call("edit", "editor")
+  c.Editor.Call("setTheme", "ace/theme/monokai")
+  c.Editor.Get("session").Call("setMode", "ace/mode/golang")
+}
+
+func (c *Go2bpp) Init(ctx vugu.InitCtx) {
+  c.initFuncs()
+  sjs.Global().Set("startEditor", sjs.FuncOf(func(this sjs.Value, p []sjs.Value) interface{} {
+    c.SetupEditor()
+    c.HasLoaded = true
+    return nil
+  }))
+}
+</script>
