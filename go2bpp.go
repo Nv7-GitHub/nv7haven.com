@@ -12,6 +12,10 @@ import (
 
 type empty struct{}
 
+var config = map[string]int{
+	"loops": 5,
+}
+
 var tmpUsed = 0
 var funcs map[string]func([]ast.Expr) string
 var compareKinds = map[token.Token]empty{
@@ -68,6 +72,10 @@ func (c *Go2bpp) initFuncs() {
 		c.BuiltinFuncs += "<code>" + k + "</code>, "
 	}
 	c.BuiltinFuncs = c.BuiltinFuncs[:len(c.BuiltinFuncs)-2] + "."
+	for k := range config {
+		c.BuiltinConfig += "<code>" + k + "</code>, "
+	}
+	c.BuiltinConfig = c.BuiltinConfig[:len(c.BuiltinConfig)-2] + "."
 }
 
 func (c *Go2bpp) parse() string {
@@ -85,9 +93,22 @@ func (c *Go2bpp) parse() string {
 	start := time.Now()
 	out := ""
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "", code, 0)
+	f, err := parser.ParseFile(fset, "", code, parser.ParseComments)
 	if err != nil {
 		return err.Error()
+	}
+	for _, val := range f.Comments {
+		txt := val.Text()
+		if strings.HasPrefix(txt, "config") {
+			txt = strings.Replace(txt, "config:", "", 1)
+			var title string
+			var content int
+			_, err = fmt.Sscanf(txt, "config %s %d", &title, &content)
+			if err != nil {
+				return err.Error()
+			}
+			config[title] = content
+		}
 	}
 	decls := f.Decls
 	for _, decl := range decls {
@@ -123,6 +144,25 @@ func parseStmt(stmt ast.Stmt) string {
 			out += parseStmt(val) + "\n"
 		}
 		return out
+	case *ast.ForStmt:
+		stm := stmt.(*ast.ForStmt)
+		out := ""
+		out += parseStmt(stm.Init) + "\n"
+		for i := 0; i < config["loops"]; i++ {
+			out += parseStmt(&ast.IfStmt{
+				Body: stm.Body,
+				Cond: stm.Cond,
+			}) + "\n"
+			out += parseStmt(stm.Post) + "\n"
+		}
+		return out
+	case *ast.IncDecStmt:
+		stm := stmt.(*ast.IncDecStmt)
+		vr := stm.X.(*ast.Ident).Name
+		if stm.Tok == token.INC {
+			return fmt.Sprintf("[DEFINE %s [MATH [VAR %s] + 1]]", vr, vr)
+		}
+		return fmt.Sprintf("[DEFINE %s [MATH [VAR %s] - 1]]", vr, vr)
 	}
 	return fmt.Sprintf("Unable to parse statement of type %s!", reflect.TypeOf(stmt).Elem().Name())
 }
@@ -164,7 +204,7 @@ func parseExpr(expr ast.Expr) string {
 		return fmt.Sprintf(tmplt+"]", args...)
 	case *ast.IndexExpr:
 		exp := expr.(*ast.IndexExpr)
-		return fmt.Sprintf("[INDEX %s %s]", parseExpr(exp.X), exp.Index.(*ast.BasicLit).Value)
+		return fmt.Sprintf("[INDEX %s %s]", parseExpr(exp.X), parseExpr(exp.Index))
 	case *ast.CallExpr:
 		call := expr.(*ast.CallExpr)
 		fun, exists := funcs[call.Fun.(*ast.Ident).Name]

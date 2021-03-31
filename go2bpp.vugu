@@ -13,14 +13,14 @@
 
 <div class="container text-center mt-3">
   <h1>Go2B++</h1>
-  <p class="lead">
-    A go to B++ converter!
-    Builtin functions: <span vg-content="vugu.HTML(c.BuiltinFuncs)"></span>
-  </p>
+  <p class="lead">A go to B++ converter!</p>
+  <p class="lead">Builtin functions: <span vg-content="vugu.HTML(c.BuiltinFuncs)"></span></p>
+  <p class="lead">Builtin config: <span vg-content="vugu.HTML(c.BuiltinConfig)"></span></p>
 
   <h2>Editor</h2>
   <div id="editor">package main
-
+  
+//config loops 5
 func main() {
   helloworld := "Hello World!"
   print(helloworld)
@@ -43,6 +43,7 @@ type Go2bpp struct {
   HasLoaded bool
   TimeTaken string
   BuiltinFuncs string
+  BuiltinConfig string
 }
 
 func (c *Go2bpp) SetupEditor() {
