@@ -1,7 +1,7 @@
 <div class="container text-center mt-3">
   <h1>B++</h1>
   <p class="lead">
-    Something
+    Run B++ code here! This was made possible by my other project, Bpp. More info <a href="github.com/Nv7-Github/Bpp">here</a>! You can find documentation <a href="https://pastebin.com/HAC1Va8j">here</a> and the source code for the original B++ interpreter <a href="https://github.com/AeroAstroid/TheBrainOfTWOWCentral">here</a>.
   </p>
 
   <div class="input-group mb-3">
