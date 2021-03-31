@@ -90,7 +90,8 @@
   <main:Crush vg-if='c.Open == "crush"'></main:Crush>
   <main:Names vg-if='c.Open == "names"'></main:Names>
   <main:Ldb vg-if='c.Open == "ldb"'></main:Ldb>
-  <main:Go2bpp vg-if='c.Open == "go2bpp"'></main:Go2bpp>
+  <main:Go2bpp vg-if='c.Open == "go2bpp"' :ChangePage="c.ChangePage"></main:Go2bpp>
+  <main:Bpp vg-if='c.Open == "bpp"'></main:Bpp>
 </div>
 
 <script type="application/x-go">
@@ -102,6 +103,7 @@ var pages map[string]map[string]string = map[string]map[string]string{
     "notes": "QwikNotes",
     "breakdown": "BreakDown",
     "go2bpp": "Go2b++",
+    "bpp": "B++",
   },
   "Social": map[string]string{
     "tf": "ThoughtFloat",

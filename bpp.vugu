@@ -1,0 +1,96 @@
+<div class="container text-center mt-3">
+  <h1>B++</h1>
+  <p class="lead">
+    Something
+  </p>
+
+  <div class="input-group mb-3">
+    <vgform:Input type="text" class="form-control" :Value="vgform.StringPtr{&c.Input}" placeholder="Enter item to be put into the program's arguments here..."></vgform:Input>
+    <button class="btn btn-outline-secondary" @click="c.Items = append(c.Items, c.Input); c.Input = ``">
+      <i class="fa fa-plus"></i>
+    </button>
+  </div>
+
+  <ul class="list-group"> 
+    <li class="list-group-item d-flex justify-content-between" vg-for="i, word := range c.Items">
+      <div class="p-0 m-0 flex-grow-1" vg-content="word" style="transform: translateY(20%);"></div> 
+      <button class="btn btn-danger" @click="c.RemoveByIndex(i)">
+        <i class="fa fa-trash"></i>
+      </button>
+    </li>
+  </ul>
+
+  <h2>Code</h2>
+  <vgform:Textarea :Value='vgform.StringPtrDefault(&c.Src, "")' class="form-control"></vgform:Textarea>
+  <button class="btn btn-primary mt-2 mb-2" @click="c.Parse()" vg-if="!c.HasCompiled">Compile!</button>
+  <button class="btn btn-primary mt-2 mb-2" @click="c.Execute()" vg-if="c.HasCompiled">Execute!</button>
+
+  <p class="lead" vg-if="c.HasStarted"><span vg-if="c.HasCompiled">Compiled</span><span vg-if="!c.HasCompiled">Executed</span> in <span vg-content="c.TimeTaken"></span></p>
+  
+  <h2 vg-if='c.HasStarted && c.Output != ""'>Output</h2>
+  <code vg-content="vugu.HTML(c.Output)" vg-if="c.HasStarted"></code>
+</div>
+
+<script type="application/x-go">
+import (
+  "math/rand"
+
+  "github.com/Nv7-Github/Bpp/parser"
+)
+
+type Bpp struct {
+  Input string `vugu:"data"`
+  Src string `vugu:"data"`
+  Output string `vugu:"data"`
+  Items []string `vugu: "data"`
+  HasCompiled bool `vugu: "data"`
+  TimeTaken string `vugu:"data"`
+  Prog *parser.Program `vugu:"data"`
+  HasStarted bool `vugu:"data"`
+}
+
+func (c *Bpp) RemoveByIndex(index int) {
+  copy(c.Items[index:], c.Items[index+1:])
+  c.Items = c.Items[:len(c.Items)-1]
+}
+
+func (c *Bpp) Parse() {
+  c.HasStarted = true
+
+	src := strings.TrimSpace(c.Src)
+	rand.Seed(time.Now().UnixNano())
+
+  var err error
+	start := time.Now()
+	c.Prog, err = parser.Parse(src)
+  c.TimeTaken = fmt.Sprintf("%v", time.Since(start))
+  if err != nil {
+    c.HasCompiled = false
+    c.Output = err.Error()
+    return
+  }
+
+  c.HasCompiled = true
+}
+
+func (c *Bpp) Execute() {
+	c.Prog.Args = c.Items
+
+  var err error
+  start := time.Now()
+  c.Output, err = c.Prog.Run()
+  c.TimeTaken = fmt.Sprintf("%v", time.Since(start))
+  if err != nil {
+    c.Output = err.Error()
+  } else {
+    c.Output = strings.Replace(c.Output, "\n", "<br>", -1)
+  }
+
+  c.HasCompiled = false
+}
+
+func (c *Bpp) Init(ctx vugu.InitCtx) {
+  c.Src = `[DEFINE helloworld "Hello World!"]
+[VAR helloworld]`
+}
+</script>

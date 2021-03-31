@@ -13,7 +13,7 @@
 
 <div class="container text-center mt-3">
   <h1>Go2B++</h1>
-  <p class="lead">A Go to B++ converter!</p>
+  <p class="lead">A Go to B++ converter! To run B++ code, <a href="#" @click='c.ChangePage("bpp", "Utilities", event.EventEnv())'>Click Here</a>!</p>
   <p class="lead">Builtin functions: <span vg-content="vugu.HTML(c.BuiltinFuncs)"></span></p>
   <p class="lead">Builtin config: <span vg-content="vugu.HTML(c.BuiltinConfig)"></span></p>
 
@@ -41,6 +41,7 @@ func main() {
 type Go2bpp struct {
   Editor js.Value
   HasLoaded bool
+  ChangePage func(newPage string, newTab string, ee vugu.EventEnv)
   TimeTaken string
   BuiltinFuncs string
   BuiltinConfig string

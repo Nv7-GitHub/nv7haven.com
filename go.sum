@@ -1,3 +1,5 @@
+github.com/Nv7-Github/Bpp v0.0.0-20210331205917-514ad78fd332 h1:0Gjog6tk6F+XyChlMdw+LyrjDla+/5iLFwrZmu56yig=
+github.com/Nv7-Github/Bpp v0.0.0-20210331205917-514ad78fd332/go.mod h1:co0Krku8+DcKgiait7glzra0+t3KVLAM8NCg2Qxe7Vo=
 github.com/chromedp/cdproto v0.0.0-20191009033829-c22f49c9ff0a/go.mod h1:PfAWWKJqjlGFYJEidUM6aVIWPr0EpobeyVWEEmplX7g=
 github.com/chromedp/chromedp v0.5.1/go.mod h1:3NMfuKTrKNr8PWEvHzdzZ57PK4jm9zW1C5nKiaWdxcM=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
