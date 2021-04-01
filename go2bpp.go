@@ -172,7 +172,6 @@ func (c *Go2bpp) parse() string {
 					}
 					return fmt.Sprintf("[VAR %s]", funcReturns[fn.Name.Obj.Name]), prmSet + txt
 				}
-				out += "[GOTO [VAR returnpos]]\n"
 			}
 		}
 	}
@@ -207,14 +206,14 @@ func parseStmt(stmt ast.Stmt, funcName string) string {
 			tmpUsed++
 			tmpEl := 0
 			el := `""`
-			if stm.Else != nil {
-				tmpEl = tmpUsed
-				tmpUsed++
-				el = fmt.Sprintf("[GOTO tmp%d]", tmpEl)
-			}
+			tmpEl = tmpUsed
+			tmpUsed++
+			el = fmt.Sprintf("[GOTO tmp%d]", tmpEl)
 			txt := fmt.Sprintf("%s\n[IF %s [GOTO tmp%d] %s]\n[SECTION tmp%d]\n%s", pre, gt, tmpIf, el, tmpIf, body)
 			if stm.Else != nil {
 				txt += fmt.Sprintf("\n[SECTION tmp%d]\n%s\n[GOTO tmp%d]", tmpEl, parseStmt(stm.Else, funcName), tmpIfEnd)
+			} else {
+				txt += fmt.Sprintf("\n[SECTION tmp%d]\n[GOTO tmp%d]", tmpEl, tmpIfEnd)
 			}
 			txt += fmt.Sprintf("\n[SECTION tmp%d]", tmpIfEnd)
 			return txt
@@ -271,9 +270,13 @@ func parseStmt(stmt ast.Stmt, funcName string) string {
 		}
 		stm := stmt.(*ast.ReturnStmt)
 		gt, pre := parseExpr(stm.Results[0])
-		funcReturns[funcName] = fmt.Sprintf("ret%d", tmpUsed)
+		returnName, exists := funcReturns[funcName]
+		if !exists {
+			funcReturns[funcName] = fmt.Sprintf("ret%d", tmpUsed)
+			returnName = funcReturns[funcName]
+		}
 		tmpUsed++
-		return fmt.Sprintf("%s\n[DEFINE ret%d %s]", pre, tmpUsed-1, gt)
+		return fmt.Sprintf("%s\n[DEFINE %s %s]\n[GOTO [VAR returnpos]]", pre, returnName, gt)
 	}
 	return fmt.Sprintf("Unable to parse statement of type %s!", reflect.TypeOf(stmt).Elem().Name())
 }
