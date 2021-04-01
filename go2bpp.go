@@ -23,6 +23,9 @@ var compareKinds = map[token.Token]empty{
 	token.EQL: empty{},
 	token.LSS: empty{},
 	token.GTR: empty{},
+	token.GEQ: empty{},
+	token.LEQ: empty{},
+	token.NEQ: empty{},
 }
 var funcReturns map[string]string
 
