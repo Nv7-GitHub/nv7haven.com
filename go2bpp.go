@@ -328,7 +328,7 @@ func parseExpr(expr ast.Expr) (string, string) {
 		exp := expr.(*ast.IndexExpr)
 		get, pr := parseExpr(exp.X)
 		get2, pr2 := parseExpr(exp.Index)
-		return fmt.Sprintf("%s%s[INDEX %s %s]", get, get2, pr, pr2), ""
+		return fmt.Sprintf("%s%s[INDEX %s %s]", pr, pr2, get, get2), ""
 	case *ast.CallExpr:
 		call := expr.(*ast.CallExpr)
 		fun, exists := funcs[call.Fun.(*ast.Ident).Name]
