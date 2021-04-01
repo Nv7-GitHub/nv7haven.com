@@ -312,6 +312,8 @@ func parseExpr(expr ast.Expr) (string, string) {
 		return fmt.Sprintf("[VAR %s]", expr.(*ast.Ident).Name), ""
 	case *ast.ParenExpr:
 		return parseExpr(expr.(*ast.ParenExpr).X)
+	case *ast.UnaryExpr:
+		return parseExpr(expr.(*ast.UnaryExpr).X)
 	case *ast.CompositeLit:
 		elems := expr.(*ast.CompositeLit).Elts
 		args := make([]interface{}, len(elems))
