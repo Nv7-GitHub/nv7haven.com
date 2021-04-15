@@ -22,7 +22,7 @@
   </div>
 
   <div class="row" vg-if="c.HasProcessed">
-    <div class="col-sm-2">
+    <div class="col-sm-4">
       <div class="card">
         <img :src="c.Resp.Thumbnail" class="card-img-top" alt="Thumbnail">
 
