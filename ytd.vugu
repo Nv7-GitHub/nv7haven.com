@@ -21,7 +21,7 @@
     <p>Sorry! We couldn't find that video. Did you put a valid video link in the input?</p>
   </div>
 
-  <div class="row" vg-if="c.HasProcessed && !c.Loading">
+  <div class="row" vg-if="c.HasProcessed && !c.Loading && !c.VideoPlaying">
     <div class="col-sm-4">
       <div class="card">
         <img :src="c.Resp.Thumbnail" class="card-img-top" alt="Thumbnail">
@@ -36,13 +36,29 @@
       <ul class="list-group"> 
         <li class="list-group-item d-flex justify-content-between" vg-for="i, result := range c.Resp.Results">
           <div class="p-0 m-0 flex-grow-1" vg-content='fmt.Sprintf("%s (%s)", result.Quality, result.SizeFormatted)' style="transform: translateY(20%);"></div> 
-          <button class="btn btn-success" @click="go c.DownloadFile(result.URL, event.EventEnv(), i)" .disabled="c.LoadingIndex == (i+1)">
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" vg-if="c.LoadingIndex == (i+1)"></span>
-            <i class="fa fa-download"></i>
-          </button>
+          
+          <div class="btn-group">
+            <button class="btn btn-success" @click="go c.DownloadFile(result.URL, event.EventEnv(), i)" .disabled="c.LoadingIndex == (i+1)">
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" vg-if="c.LoadingIndex == (i+1)"></span>
+              <i class="fa fa-download"></i>
+            </button>
+
+            <button class="btn btn-primary ml-1" @click="c.VideoPlaying = true; c.VideoURL = result.URL">
+              <i class="fa fa-play"></i>
+            </button>
+          </div>
         </li>
       </ul>
     </div>
+  </div>
+
+  <div class="embed-responsive" vg-if="c.VideoPlaying">
+    <video class="embed-responsive-item" style="width:50vw;" controls>
+      <source :src="c.VideoURL" type="video/mp4">
+      Videos aren't supported!
+    </video>
+
+    <button class="btn btn-primary" style="left: 2vw; bottom: 2vh; position: fixed;" @click='c.VideoPlaying = false; c.VideoURL = ""'><i class="fa fa-arrow-left"></i>&nbsp;back</button>
   </div>
 </div>
 
@@ -56,6 +72,9 @@ type Ytd struct {
 
   NotFoundURL bool `vugu:"data"`
   HasProcessed bool `vugu:"data"`
+
+  VideoPlaying bool `vugu:"data"`
+  VideoURL string `vugu:"data"`
 }
 
 type YTResp struct {
@@ -76,6 +95,7 @@ const ytFilename = "video.mp4"
 func (c *Ytd) Download(ee vugu.EventEnv) {
   ee.Lock()
   c.Loading = true
+  c.VideoPlaying = false
   c.HasProcessed = true
   c.NotFoundURL = false
   ee.UnlockRender()
