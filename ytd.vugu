@@ -43,7 +43,7 @@
               <i class="fa fa-download"></i>
             </button>
 
-            <button class="btn btn-primary ml-1" @click="c.VideoPlaying = true; c.VideoURL = result.URL">
+            <button class="btn btn-primary ml-1" @click="c.VideoPlaying = true; c.VideoURL = result.URL; c.VideoType = result.MimeType">
               <i class="fa fa-play"></i>
             </button>
           </div>
@@ -54,7 +54,7 @@
 
   <div class="embed-responsive" vg-if="c.VideoPlaying">
     <video class="embed-responsive-item" style="width:50vw;" controls>
-      <source :src="c.VideoURL" type="video/mp4">
+      <source :src="c.VideoURL" :type="c.VideoType">
       Videos aren't supported!
     </video>
 
@@ -75,6 +75,7 @@ type Ytd struct {
 
   VideoPlaying bool `vugu:"data"`
   VideoURL string `vugu:"data"`
+  VideoType string `vugu:"data"`
 }
 
 type YTResp struct {
@@ -88,9 +89,8 @@ type YTResult struct {
 	SizeFormatted string
 	URL           string
 	Quality       string
+  MimeType      string
 }
-
-const ytFilename = "video.mp4"
 
 func (c *Ytd) Download(ee vugu.EventEnv) {
   ee.Lock()
@@ -138,9 +138,11 @@ func (c *Ytd) DownloadFile(ur string, ee vugu.EventEnv, index int) {
   c.LoadingIndex = index+1
   ee.UnlockRender()
 
-  ur = "https://api.nv7haven.tk/http_get/" + url.PathEscape(ur)
 
-  sjs.Global().Call("fetch", ur).Call("then", sjs.FuncOf(func(this sjs.Value, p []sjs.Value) interface{} {
+  sjs.Global().Call("fetch", "https://api.nv7haven.tk/http_get/", map[string]interface{}{
+    "method": "POST",
+    "body": ur,
+  }).Call("then", sjs.FuncOf(func(this sjs.Value, p []sjs.Value) interface{} {
     p[0].Call("blob").Call("then", sjs.FuncOf(func(this sjs.Value, p []sjs.Value) interface{} {
       url := sjs.Global().Get("URL").Call("createObjectURL", p[0])
 
@@ -149,7 +151,9 @@ func (c *Ytd) DownloadFile(ur string, ee vugu.EventEnv, index int) {
       a := doc.Call("createElement", "a")
       a.Set("href", url)
       a.Set("style", "display: none;")
-      a.Set("download", ytFilename)
+
+      kind := strings.Split(strings.Split(c.Resp.Results[index].MimeType, "video/")[1], ";")[0]
+      a.Set("download", "video." + kind)
 
       doc.Get("body").Call("appendChild", a)
       a.Call("click")
