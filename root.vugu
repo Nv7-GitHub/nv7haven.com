@@ -92,6 +92,7 @@
   <main:Ldb vg-if='c.Open == "ldb"'></main:Ldb>
   <main:Go2bpp vg-if='c.Open == "go2bpp"' :ChangePage="c.ChangePage"></main:Go2bpp>
   <main:Bpp vg-if='c.Open == "bpp"'></main:Bpp>
+  <main:Ytd vg-if='c.Open == "ytd"'></main:Ytd>
 </div>
 
 <script type="application/x-go">
@@ -102,8 +103,7 @@ var pages map[string]map[string]string = map[string]map[string]string{
     "upload": "FileHaven",
     "notes": "QwikNotes",
     "breakdown": "BreakDown",
-    "go2bpp": "Go2b++",
-    "bpp": "B++",
+    "ytd": "YTD",
   },
   "Social": map[string]string{
     "tf": "ThoughtFloat",
@@ -121,6 +121,10 @@ var pages map[string]map[string]string = map[string]map[string]string{
     "hella": "Hella",
     "crush": "UniCrush",
     "names": "Names",
+  },
+  "Dev": map[string]string{
+    "go2bpp": "Go2b++",
+    "bpp": "B++",
   },
 }
 var keys []string = make([]string, 0)

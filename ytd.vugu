@@ -1,0 +1,127 @@
+<div class="container text-center mt-3">
+  <h1>YTD</h1>
+  <p class="lead">
+    A youtube video downloader! Check out <a href="https://www.quora.com/How-can-I-make-a-YouTube-video-downloader-web-application-from-scratch">this quora post</a> for info on how it works!
+  </p>
+
+  <div class="input-group mb-3">
+    <vgform:Input :Value='vgform.StringPtrDefault(&c.Input, "")' class="form-control" placeholder="Paste video link here..."></vgform:Input>
+
+    <button class="btn btn-primary" @click="go c.Download(event.EventEnv())" .disabled="c.Loading">
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" vg-if="c.Loading"></span>
+        Download!
+    </button>
+  </div>
+
+  <div vg-if='c.NotFoundURL' class="alert alert-danger alert-dismissible fade show" role="alert">
+    <h4 class="alert-heading">
+      Couldn't Find Video
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="c.NotFoundURL = false"></button>
+    </h4>
+    <p>Sorry! We couldn't find that video. Did you put a valid video link in the input?</p>
+  </div>
+
+  <div class="row" vg-if="c.HasProcessed">
+    <div class="col-sm-2">
+      <div class="card">
+        <img :src="c.Resp.Thumbnail" class="card-img-top" alt="Thumbnail">
+
+        <div class="card-body">
+          <h5 class="card-title" vg-content="c.Resp.Title"></h5>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm">
+      <ul class="list-group"> 
+        <li class="list-group-item d-flex justify-content-between" vg-for="i, result := range c.Resp.Results">
+          <div class="p-0 m-0 flex-grow-1" vg-content='fmt.Sprintf("%s (%s)", result.Quality, result.SizeFormatted)' style="transform: translateY(20%);"></div> 
+          <button class="btn btn-success" @click="go c.DownloadFile(result.URL, event.EventEnv(), i)" .disabled="c.LoadingIndex == (i+1)">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" vg-if="c.LoadingIndex == (i+1)"></span>
+            <i class="fa fa-download"></i>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script type="application/x-go">
+type Ytd struct {
+  Input string `vugu:"data"`
+  Loading bool `vugu:"data"`
+  LoadingIndex int `vugu:"data"`
+
+  Resp YTResp `vugu:"data"`
+
+  NotFoundURL bool `vugu:"data"`
+  HasProcessed bool `vugu:"data"`
+}
+
+type YTResp struct {
+	Results   []YTResult
+	Thumbnail string
+	Title     string
+}
+
+type YTResult struct {
+	Size          int
+	SizeFormatted string
+	URL           string
+	Quality       string
+}
+
+const ytFilename = "video.mp4"
+
+func (c *Ytd) Download(ee vugu.EventEnv) {
+  ee.Lock()
+  c.Loading = true
+  c.HasProcessed = true
+  c.NotFoundURL = false
+  ee.UnlockRender()
+  
+  data := get("https://api.nv7haven.tk/youtube_url/" + c.Input)
+  err := json.Unmarshal([]byte(data), &c.Resp)
+  if err != nil {
+		js.Global().Call("alert", err.Error())
+		panic(err)
+	}
+
+  ee.Lock()
+  c.Loading = false
+  c.HasProcessed = true
+  c.Input = ""
+  ee.UnlockRender()
+}
+
+func (c *Ytd) DownloadFile(ur string, ee vugu.EventEnv, index int) {
+  ee.Lock()
+  c.LoadingIndex = index+1
+  ee.UnlockRender()
+
+  ur = "https://api.nv7haven.tk/http_get/" + url.PathEscape(ur)
+
+  sjs.Global().Call("fetch", ur).Call("then", sjs.FuncOf(func(this sjs.Value, p []sjs.Value) interface{} {
+    p[0].Call("blob").Call("then", sjs.FuncOf(func(this sjs.Value, p []sjs.Value) interface{} {
+      url := sjs.Global().Get("URL").Call("createObjectURL", p[0])
+
+      doc := sjs.Global().Get("document")
+
+      a := doc.Call("createElement", "a")
+      a.Set("href", url)
+      a.Set("style", "display: none;")
+      a.Set("download", ytFilename)
+
+      doc.Get("body").Call("appendChild", a)
+      a.Call("click")
+      doc.Get("body").Call("removeChild", a)
+
+      ee.Lock()
+      c.LoadingIndex = 0
+      ee.UnlockRender()
+      return nil
+    }))
+    return nil
+  }))
+}
+</script>
