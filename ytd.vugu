@@ -99,12 +99,31 @@ func (c *Ytd) Download(ee vugu.EventEnv) {
   c.HasProcessed = true
   c.NotFoundURL = false
   ee.UnlockRender()
+
+  switch {
+  case strings.HasPrefix(c.Input, "https://youtu.be/"):
+    c.Input = strings.Replace(c.Input, "https://youtu.be/", "", 1)
+  case strings.HasPrefix(c.Input, "https://www.youtube.com/watch?v="):
+    c.Input = strings.Replace(c.Input, "https://www.youtube.com/watch?v=", "", 1)
+  }
   
-  data := get("https://api.nv7haven.tk/youtube_url/" + c.Input)
+  data, code := getCode("https://api.nv7haven.tk/youtube_url/" + c.Input)
+  if code != 200 {
+    ee.Lock()
+    c.Loading = false
+    c.HasProcessed = false
+    c.NotFoundURL = true
+    ee.UnlockRender()
+    return
+  }
   err := json.Unmarshal([]byte(data), &c.Resp)
   if err != nil {
-		js.Global().Call("alert", err.Error())
-		panic(err)
+		ee.Lock()
+    c.Loading = false
+    c.HasProcessed = false
+    c.NotFoundURL = true
+    ee.UnlockRender()
+    return
 	}
 
   ee.Lock()
