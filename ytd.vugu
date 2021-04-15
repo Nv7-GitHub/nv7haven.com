@@ -21,7 +21,7 @@
     <p>Sorry! We couldn't find that video. Did you put a valid video link in the input?</p>
   </div>
 
-  <div class="row" vg-if="c.HasProcessed">
+  <div class="row" vg-if="c.HasProcessed && !c.Loading">
     <div class="col-sm-4">
       <div class="card">
         <img :src="c.Resp.Thumbnail" class="card-img-top" alt="Thumbnail">
