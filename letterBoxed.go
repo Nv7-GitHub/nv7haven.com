@@ -42,7 +42,7 @@ func isValid(word string) bool {
 }
 
 func (c *LetterBoxed) solveLetterBoxed() {
-	lists = [][3]byte{[3]byte{c.List1[0], c.List1[1], c.List1[2]}, [3]byte{c.List2[0], c.List2[1], c.List2[2]}, [3]byte{c.List3[0], c.List3[1], c.List3[2]}, [3]byte{c.List4[0], c.List4[1], c.List4[2]}}
+	lists = [][3]byte{{c.List1[0], c.List1[1], c.List1[2]}, {c.List2[0], c.List2[1], c.List2[2]}, {c.List3[0], c.List3[1], c.List3[2]}, {c.List4[0], c.List4[1], c.List4[2]}}
 
 	words := c.Words
 	valid := make([]string, len(words))
@@ -57,7 +57,7 @@ func (c *LetterBoxed) solveLetterBoxed() {
 
 	valid = valid[:count]
 
-	categories := make(map[byte][]string, 0)
+	categories := make(map[byte][]string)
 	for _, val := range valid {
 		_, exists := categories[val[0]]
 		if exists {
@@ -97,7 +97,7 @@ func (c *LetterBoxed) solveLetterBoxed() {
 				end = categories[end][index][len(categories[end][index])-1]
 			}
 		}
-		cleaned := make(map[string]bool, 0)
+		cleaned := make(map[string]bool)
 		for _, val := range combo {
 			cleaned[val] = true
 		}
@@ -110,7 +110,7 @@ func (c *LetterBoxed) solveLetterBoxed() {
 
 	scores := make([]Scored, 0)
 	for _, val := range combos {
-		set := make(map[byte]bool, 0)
+		set := make(map[byte]bool)
 		for _, word := range val {
 			for _, char := range []byte(word) {
 				set[char] = true

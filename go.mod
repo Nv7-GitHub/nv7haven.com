@@ -1,6 +1,6 @@
 module github.com/Nv7-Github/nv7haven.tk
 
-go 1.15
+go 1.16
 
 require (
 	github.com/Nv7-Github/Bpp v0.0.0-20210401174045-13af1d41a00e

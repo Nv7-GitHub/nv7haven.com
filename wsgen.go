@@ -13,14 +13,14 @@ type change struct {
 const letters = "abcdefghijklmnopqrstuvwxyz"
 
 var changes = []change{
-	change{row: 0, col: -1},
-	change{row: 1, col: 0},
-	change{row: 0, col: 1},
-	change{row: -1, col: 0},
-	change{row: -1, col: -1},
-	change{row: 1, col: -1},
-	change{row: -1, col: 1},
-	change{row: -1, col: -1},
+	{row: 0, col: -1},
+	{row: 1, col: 0},
+	{row: 0, col: 1},
+	{row: -1, col: 0},
+	{row: -1, col: -1},
+	{row: 1, col: -1},
+	{row: -1, col: 1},
+	{row: -1, col: -1},
 }
 
 func genPos(brd [][]rune, word string) (dir change, x int, y int) {

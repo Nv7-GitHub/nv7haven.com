@@ -20,12 +20,12 @@ var config = map[string]int{
 var tmpUsed = 0
 var funcs map[string]func([]ast.Expr) (string, string)
 var compareKinds = map[token.Token]empty{
-	token.EQL: empty{},
-	token.LSS: empty{},
-	token.GTR: empty{},
-	token.GEQ: empty{},
-	token.LEQ: empty{},
-	token.NEQ: empty{},
+	token.EQL: {},
+	token.LSS: {},
+	token.GTR: {},
+	token.GEQ: {},
+	token.LEQ: {},
+	token.NEQ: {},
 }
 var funcReturns map[string]string
 
@@ -52,7 +52,7 @@ func (c *Go2bpp) initFuncs() {
 	funcs["repeat"] = func(params []ast.Expr) (string, string) {
 		gt, pre := parseExpr(params[0])
 		gt2, pre2 := parseExpr(params[1])
-		return fmt.Sprintf("%s\n$s\n[REPEAT %s %s]", pre, pre2, gt, gt2), ""
+		return fmt.Sprintf("%s\n%s\n[REPEAT %s %s]", pre, pre2, gt, gt2), ""
 	}
 	funcs["randint"] = func(params []ast.Expr) (string, string) {
 		if len(params) < 2 {
@@ -186,16 +186,14 @@ func (c *Go2bpp) parse() string {
 }
 
 func parseStmt(stmt ast.Stmt, funcName string) string {
-	switch stmt.(type) {
+	switch stm := stmt.(type) {
 	case *ast.AssignStmt:
-		stm := stmt.(*ast.AssignStmt)
 		gt, pre := parseExpr(stm.Rhs[0])
 		return fmt.Sprintf("%s\n[DEFINE %s %s]", pre, stm.Lhs[0].(*ast.Ident).Name, gt)
 	case *ast.ExprStmt:
 		gt, pr := parseExpr(stmt.(*ast.ExprStmt).X)
 		return pr + "\n" + gt
 	case *ast.IfStmt:
-		stm := stmt.(*ast.IfStmt)
 		if config["goto"] == 1 {
 			tmpIfEnd := tmpUsed
 			tmpUsed++
@@ -233,7 +231,6 @@ func parseStmt(stmt ast.Stmt, funcName string) string {
 		}
 		return out
 	case *ast.ForStmt:
-		stm := stmt.(*ast.ForStmt)
 		if config["goto"] == 1 {
 			out := ""
 			out += parseStmt(stm.Init, funcName) + "\n"
@@ -258,7 +255,6 @@ func parseStmt(stmt ast.Stmt, funcName string) string {
 			return out
 		}
 	case *ast.IncDecStmt:
-		stm := stmt.(*ast.IncDecStmt)
 		vr := stm.X.(*ast.Ident).Name
 		if stm.Tok == token.INC {
 			return fmt.Sprintf("[DEFINE %s [MATH [VAR %s] + 1]]", vr, vr)
@@ -268,7 +264,6 @@ func parseStmt(stmt ast.Stmt, funcName string) string {
 		if funcName == "main" {
 			return "[GOTO end]"
 		}
-		stm := stmt.(*ast.ReturnStmt)
 		gt, pre := parseExpr(stm.Results[0])
 		returnName, exists := funcReturns[funcName]
 		if !exists {
@@ -293,9 +288,9 @@ func parseExprs(exprs []ast.Expr) string {
 }
 
 func parseExpr(expr ast.Expr) (string, string) {
-	switch expr.(type) {
+	switch exp := expr.(type) {
 	case *ast.BasicLit:
-		return expr.(*ast.BasicLit).Value, ""
+		return exp.Value, ""
 	case *ast.BinaryExpr:
 		stm := expr.(*ast.BinaryExpr)
 		get, pre := parseExpr(stm.X)
@@ -309,13 +304,13 @@ func parseExpr(expr ast.Expr) (string, string) {
 		}
 		return fmt.Sprintf("%s%s[MATH %s %s %s]", pre, pre2, get, stm.Op, get2), ""
 	case *ast.Ident:
-		return fmt.Sprintf("[VAR %s]", expr.(*ast.Ident).Name), ""
+		return fmt.Sprintf("[VAR %s]", exp.Name), ""
 	case *ast.ParenExpr:
-		return parseExpr(expr.(*ast.ParenExpr).X)
+		return parseExpr(exp.X)
 	case *ast.UnaryExpr:
-		return parseExpr(expr.(*ast.UnaryExpr).X)
+		return parseExpr(exp.X)
 	case *ast.CompositeLit:
-		elems := expr.(*ast.CompositeLit).Elts
+		elems := exp.Elts
 		args := make([]interface{}, len(elems))
 		pre := ""
 		var pr string
@@ -327,17 +322,15 @@ func parseExpr(expr ast.Expr) (string, string) {
 		}
 		return pr + "\n" + fmt.Sprintf(tmplt+"]", args...), ""
 	case *ast.IndexExpr:
-		exp := expr.(*ast.IndexExpr)
 		get, pr := parseExpr(exp.X)
 		get2, pr2 := parseExpr(exp.Index)
 		return fmt.Sprintf("%s%s[INDEX %s %s]", pr, pr2, get, get2), ""
 	case *ast.CallExpr:
-		call := expr.(*ast.CallExpr)
-		fun, exists := funcs[call.Fun.(*ast.Ident).Name]
+		fun, exists := funcs[exp.Fun.(*ast.Ident).Name]
 		if !exists {
-			return fmt.Sprintf("No such function %s!", call.Fun.(*ast.Ident).Name), ""
+			return fmt.Sprintf("No such function %s!", exp.Fun.(*ast.Ident).Name), ""
 		}
-		return fun(call.Args)
+		return fun(exp.Args)
 	}
 	return fmt.Sprintf("Unable to parse expression of type %s!", reflect.TypeOf(expr).Elem().Name()), ""
 }

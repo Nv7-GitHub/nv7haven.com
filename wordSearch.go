@@ -16,19 +16,16 @@ eahcfxrbkyk
 cbslmqxtrla
 `
 
-var board [][]rune
-var words []string
-
 // offsets are all the neighbors of a given area
 var offsets = [][]int{
-	[]int{-1, -1},
-	[]int{0, -1},
-	[]int{1, -1},
-	[]int{1, 0},
-	[]int{1, 1},
-	[]int{0, 1},
-	[]int{-1, 1},
-	[]int{-1, 0},
+	{-1, -1},
+	{0, -1},
+	{1, -1},
+	{1, 0},
+	{1, 1},
+	{0, 1},
+	{-1, 1},
+	{-1, 0},
 }
 
 // parseText parses multiline text into a board, a 2-dimensional slice of runes
