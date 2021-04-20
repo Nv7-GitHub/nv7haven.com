@@ -1,5 +1,7 @@
 github.com/Nv7-Github/Bpp v0.0.0-20210401174634-125e45360501 h1:r75mizUOVKhI19Kz24lYE+I4UWLl+gOKrzgbQQGWNv0=
 github.com/Nv7-Github/Bpp v0.0.0-20210401174634-125e45360501/go.mod h1:co0Krku8+DcKgiait7glzra0+t3KVLAM8NCg2Qxe7Vo=
+github.com/Nv7-Github/Bpp v0.0.0-20210420192806-b3166f38f100 h1:ZisKT3m54cDzUJ5p/iI7NZAEK71wa9iGJzknEMEeGVI=
+github.com/Nv7-Github/Bpp v0.0.0-20210420192806-b3166f38f100/go.mod h1:co0Krku8+DcKgiait7glzra0+t3KVLAM8NCg2Qxe7Vo=
 github.com/cheekybits/is v0.0.0-20150225183255-68e9c0620927/go.mod h1:h/aW8ynjgkuj+NQRlZcDbAbM1ORAbXjXX77sX7T289U=
 github.com/chromedp/cdproto v0.0.0-20191009033829-c22f49c9ff0a/go.mod h1:PfAWWKJqjlGFYJEidUM6aVIWPr0EpobeyVWEEmplX7g=
 github.com/chromedp/chromedp v0.5.1/go.mod h1:3NMfuKTrKNr8PWEvHzdzZ57PK4jm9zW1C5nKiaWdxcM=
