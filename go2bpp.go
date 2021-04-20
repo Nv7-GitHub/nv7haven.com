@@ -47,7 +47,12 @@ func (c *Go2bpp) initFuncs() {
 		return parseExprs(params), ""
 	}
 	funcs["choose"] = func(params []ast.Expr) (string, string) {
-		return fmt.Sprintf("[CHOOSE %s]", parseExprs(params)), ""
+		if len(params) < 2 {
+			return "Not enough parameters!", ""
+		}
+		gt, pre := parseExpr(params[0])
+		gt2, pre2 := parseExpr(params[1])
+		return fmt.Sprintf("%s\n%s\n[CHOOSE %s %s]", pre, pre2, gt, gt2), ""
 	}
 	funcs["repeat"] = func(params []ast.Expr) (string, string) {
 		gt, pre := parseExpr(params[0])
@@ -98,6 +103,8 @@ func (c *Go2bpp) initFuncs() {
 		}
 		return fmt.Sprintf("%s[ARGS %s]", pre, gt), ""
 	}
+	c.BuiltinFuncs = ""
+	c.BuiltinConfig = ""
 	for k := range funcs {
 		c.BuiltinFuncs += "<code>" + k + "</code>, "
 	}
@@ -287,7 +294,7 @@ func parseExprs(exprs []ast.Expr) string {
 	return pres + out
 }
 
-func parseExpr(expr ast.Expr) (string, string) {
+func parseExprRaw(expr ast.Expr) (string, string) {
 	switch exp := expr.(type) {
 	case *ast.BasicLit:
 		return exp.Value, ""
@@ -320,7 +327,7 @@ func parseExpr(expr ast.Expr) (string, string) {
 			pre += pr + "\n"
 			tmplt += " %s"
 		}
-		return pr + "\n" + fmt.Sprintf(tmplt+"]", args...), ""
+		return pre + "\n" + fmt.Sprintf(tmplt+"]", args...), ""
 	case *ast.IndexExpr:
 		get, pr := parseExpr(exp.X)
 		get2, pr2 := parseExpr(exp.Index)
@@ -333,4 +340,9 @@ func parseExpr(expr ast.Expr) (string, string) {
 		return fun(exp.Args)
 	}
 	return fmt.Sprintf("Unable to parse expression of type %s!", reflect.TypeOf(expr).Elem().Name()), ""
+}
+
+func parseExpr(expr ast.Expr) (string, string) {
+	gt, pre := parseExprRaw(expr)
+	return strings.ReplaceAll(gt, "\n", ""), pre
 }

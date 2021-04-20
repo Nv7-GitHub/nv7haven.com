@@ -55,6 +55,7 @@ func (c *Go2bpp) SetupEditor() {
 }
 
 func (c *Go2bpp) Init(ctx vugu.InitCtx) {
+  c.initFuncs()
   sjs.Global().Set("startEditor", sjs.FuncOf(func(this sjs.Value, p []sjs.Value) interface{} {
     c.SetupEditor()
     c.HasLoaded = true
