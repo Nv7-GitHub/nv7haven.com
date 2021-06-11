@@ -14,24 +14,20 @@
 <div class="container text-center mt-3">
   <h1>Go2B++</h1>
   <p class="lead">A Go to B++ converter! To run B++ code, <a href="#" @click='c.ChangePage("bpp", "Utilities", event.EventEnv())'>Click Here</a>!</p>
-  <p class="lead">Builtin functions: <span vg-content="vugu.HTML(c.BuiltinFuncs)"></span></p>
-  <p class="lead">Builtin config: <span vg-content="vugu.HTML(c.BuiltinConfig)"></span></p>
 
   <h2>Editor</h2>
   <div id="editor">package main
 
-//config goto 0
-//config loops 5
 func main() {
   helloworld := "Hello World!"
   print(helloworld)
 }</div>
 
-  <button class="btn btn-primary mt-2 mb-2" @click="">Parse!</button>
+  <button class="btn btn-primary mt-2 mb-2" @click="c.Parse()">Parse!</button>
 
   <h2>Output</h2>
   <p vg-if='c.TimeTaken != ""'>Parsed in <span vg-content="c.TimeTaken"></span>.</p>
-  <textarea class="form-control mb-5" vg-content="c.parse()" id="output"></textarea>
+  <textarea class="form-control mb-5" vg-content="c.Output" id="output"></textarea>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" onload="startEditor()"></script>
   <script>
@@ -39,13 +35,16 @@ func main() {
 </div>
 
 <script type="application/x-go">
+import "github.com/Nv7-Github/Bpp/gobpp"
+import goparser "go/parser"
+import "go/token"
+
 type Go2bpp struct {
   Editor js.Value
   HasLoaded bool
   ChangePage func(newPage string, newTab string, ee vugu.EventEnv)
   TimeTaken string
-  BuiltinFuncs string
-  BuiltinConfig string
+  Output string
 }
 
 func (c *Go2bpp) SetupEditor() {
@@ -55,11 +54,35 @@ func (c *Go2bpp) SetupEditor() {
 }
 
 func (c *Go2bpp) Init(ctx vugu.InitCtx) {
-  c.initFuncs()
   sjs.Global().Set("startEditor", sjs.FuncOf(func(this sjs.Value, p []sjs.Value) interface{} {
     c.SetupEditor()
     c.HasLoaded = true
     return nil
   }))
+}
+
+func (c *Go2bpp) Parse() {
+  code := c.Editor.Call("getValue").String()
+	go func() {
+		time.Sleep(time.Second / 2)
+		c.Editor.Call("destroy")
+		c.SetupEditor()
+		c.Editor.Call("setValue", code)
+	}()
+
+  start := time.Now()
+
+  // Parse Go Code
+  fset := token.NewFileSet()
+  f, err := goparser.ParseFile(fset, "", code, 0)
+	if err != nil {
+		panic(err)
+	}
+
+  // Convert Go Code
+  c.Output, err = gobpp.Convert(f)
+  handle(err)
+
+  c.TimeTaken = fmt.Sprintf("%v", time.Since(start))
 }
 </script>

@@ -36,6 +36,7 @@ import (
   "math/rand"
 
   "github.com/Nv7-Github/Bpp/parser"
+  "github.com/Nv7-Github/Bpp/membuild"
 )
 
 type Bpp struct {
@@ -45,7 +46,7 @@ type Bpp struct {
   Items []string `vugu: "data"`
   HasCompiled bool `vugu: "data"`
   TimeTaken string `vugu:"data"`
-  Prog *parser.Program `vugu:"data"`
+  Prog *membuild.Program `vugu:"data"`
   HasStarted bool `vugu:"data"`
 }
 
@@ -60,9 +61,19 @@ func (c *Bpp) Parse() {
 	src := strings.TrimSpace(c.Src)
 	rand.Seed(time.Now().UnixNano())
 
-  var err error
 	start := time.Now()
-	c.Prog, err = parser.Parse(src)
+
+	prog, err := parser.Parse(src)
+  c.Prog, err = membuild.Build(prog)
+	handle(err)
+  c.Prog.Runner = func(d membuild.Data) error {
+		if !d.Type.IsEqual(parser.NULL) && d.Value != "" {
+			c.Output += fmt.Sprintf("%v\n", d.Value)
+			return err
+		}
+		return nil
+	}
+
   c.TimeTaken = fmt.Sprintf("%v", time.Since(start))
   if err != nil {
     c.HasCompiled = false
@@ -78,7 +89,7 @@ func (c *Bpp) Execute() {
 
   var err error
   start := time.Now()
-  c.Output, err = c.Prog.Run()
+  err = c.Prog.Run()
   c.TimeTaken = fmt.Sprintf("%v", time.Since(start))
   if err != nil {
     c.Output = err.Error()
