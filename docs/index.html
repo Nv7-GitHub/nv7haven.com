@@ -64,7 +64,7 @@
 				};
 			}
 			const go = new Go();
-			WebAssembly.instantiateStreaming(fetch("/main.wasm?v=42"), go.importObject).then((result) => {
+			WebAssembly.instantiateStreaming(fetch("/main.wasm?v=43"), go.importObject).then((result) => {
 				go.run(result.instance);
 			});
 		} else {
