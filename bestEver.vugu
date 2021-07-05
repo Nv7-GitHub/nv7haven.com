@@ -69,7 +69,6 @@ import (
   json "github.com/vugu/vjson"
 
   "github.com/vugu/vugu/vgform"
-  "github.com/r3labs/sse/v2"
 )
 
 var prefix = "https://api.nv7haven.tk/"
@@ -210,10 +209,11 @@ func (c *BestEver) Init(ctx vugu.InitCtx) {
   c.Left = "Click to start"
   c.Right = "Click to start"
   c.Elems = "10"
-  client := sse.NewClient("https://nv7haven.firebaseio.com/data.json")
-  go client.SubscribeRaw(func(msg *sse.Event) {
-		c.LdbUpdate(ctx.EventEnv(), false)
-	})
+  es := sjs.Global().Get("EventSource").New("https://nv7haven.firebaseio.com/data.json")
+  es.Call("addEventListener", "put", sjs.FuncOf(func(this sjs.Value, args []sjs.Value) interface{} {
+    go c.LdbUpdate(ctx.EventEnv(), false)
+    return nil
+  }))
   go c.LdbUpdate(ctx.EventEnv(), false)
   c.LocalStorage = js.Global().Get("window").Get("localStorage")
 }

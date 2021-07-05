@@ -82,7 +82,6 @@
   <main:LetterBoxed vg-if='c.Open == "letterboxed"'></main:LetterBoxed>
   <main:Notes vg-if='c.Open == "notes"'></main:Notes>
   <main:Wiki vg-if='c.Open == "wiki"'></main:Wiki>
-  <main:Tf vg-if='c.Open == "tf"'></main:Tf>
   <main:Upload vg-if='c.Open == "upload"'></main:Upload>
   <main:Wsgen vg-if='c.Open == "wsgen"'></main:Wsgen>
   <main:Ideas vg-if='c.Open == "ideas"'></main:Ideas>
@@ -106,7 +105,6 @@ var pages map[string]map[string]string = map[string]map[string]string{
     "ytd": "YTD",
   },
   "Social": map[string]string{
-    "tf": "ThoughtFloat",
     "bestever": "BestEver",
     "ideas": "Ideas",
     "wiki": "Elemental Wiki",
