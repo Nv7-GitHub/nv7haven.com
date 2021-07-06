@@ -1,0 +1,129 @@
+<div class="container text-center mt-3">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.4.1/chart.min.js" integrity="sha512-5vwN8yor2fFT9pgPS9p9R7AszYaNn0LkQElTXIsZFCL7ucT8zDCAqlQXDdaqgA1mZP47hdvztBMsIoFxq/FyyQ==" crossorigin="anonymous" referrerpolicy="no-referrer" onload="initCharts()"></script>
+
+  <h1>EoD</h1>
+  <p class="lead">
+    This is a graph of many EoD statistics! Check out EoD at <a href="https://discord.gg/jHeqgdM">https://discord.gg/jHeqgdM</a>!
+  </p>
+
+  <h2>General Statistics</h2>
+  <p class="lead">Statistics on element count, combination count, and categorized element count.</p>
+  <canvas id="elemcnt" style="width: 75vw; height: 30vw;"></canvas>
+
+  <h2>User Statistics</h2>
+  <p class="lead">Statistics on user count and server count.</p>
+  <canvas id="usercnt" style="width: 75vw; height: 30vw;"></canvas>
+
+  <h2>Elements Found</h2>
+  <p class="lead">The number of elements found, across all servers and users.</p>
+  <canvas id="found" style="width: 75vw; height: 30vw;"></canvas>
+
+  <div class="overlay" vg-if="!c.DoneLoading"><div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div></div>
+</div>
+
+<script type="application/x-go">
+type Eod struct {
+  DoneLoading bool
+  Ee vugu.EventEnv
+}
+
+func (c *Eod) Init(ctx vugu.InitCtx) {
+  c.Ee = ctx.EventEnv()
+  sjs.Global().Set("initCharts", sjs.FuncOf(c.InitCharts))
+}
+
+func (c *Eod) InitCharts(this sjs.Value, p []sjs.Value) interface{} {
+  go func() {
+    data := get(prefix + "eod_stats")
+    var dat map[string]interface{}
+    if err := json.Unmarshal([]byte(data), &dat); err != nil {
+      panic(err)
+    }
+
+    // Get Labels
+    labels := dat["labels"]
+
+    // Elemcnt Graph
+    elemcnt := []interface{}{
+      map[string]interface{}{
+        "label": "Element Count",
+        "data": dat["elemcnt"],
+        "fill": true,
+        "borderColor": "rgba(54, 162, 235, 1)",
+        "backgroundColor": "rgba(54, 162, 235, 0.2)",
+      },
+      map[string]interface{}{
+        "label": "Combination Count",
+        "data": dat["combcnt"],
+        "fill": true,
+        "borderColor": "rgba(255, 206, 86, 1)",
+        "backgroundColor": "rgba(255, 206, 86, 0.2)",
+      },
+      map[string]interface{}{
+        "label": "Categorized Elements",
+        "data": dat["categorized"],
+        "fill": true,
+        "borderColor": "rgba(75, 192, 192, 1)",
+        "backgroundColor": "rgba(75, 192, 192, 0.2)",
+      },
+    }
+
+    // Usercnt Graph
+    usercnt := []interface{}{
+      map[string]interface{}{
+        "label": "User Count",
+        "data": dat["usercnt"],
+        "fill": true,
+        "borderColor": "rgba(153, 102, 255, 1)",
+        "backgroundColor": "rgba(153, 102, 255, 0.2)",
+      },
+      map[string]interface{}{
+        "label": "Server Count",
+        "data": dat["servercnt"],
+        "fill": true,
+        "borderColor": "rgba(255, 159, 64, 1)",
+        "backgroundColor": "rgba(255, 159, 64, 0.2)",
+      },
+    }
+
+    // Found Graph
+    found := []interface{}{
+      map[string]interface{}{
+        "label": "Elements Found",
+        "data": dat["found"],
+        "fill": true,
+        "borderColor": "rgba(255, 99, 132, 1)",
+        "backgroundColor": "rgba(255, 99, 132, 0.2)",
+      },
+    }
+
+    // Render
+    js.Global().Get("Chart").New("elemcnt", map[string]interface{}{
+      "type": "line",
+      "data": map[string]interface{}{
+        "labels": labels,
+        "datasets": elemcnt,
+      },
+    })
+    js.Global().Get("Chart").New("usercnt", map[string]interface{}{
+      "type": "line",
+      "data": map[string]interface{}{
+        "labels": labels,
+        "datasets": usercnt,
+      },
+    })
+    js.Global().Get("Chart").New("found", map[string]interface{}{
+      "type": "line",
+      "data": map[string]interface{}{
+        "labels": labels,
+        "datasets": found,
+      },
+    })
+
+    c.Ee.Lock()
+    c.DoneLoading = true
+    c.Ee.UnlockRender()
+  }()
+  return nil
+}
+</script>

@@ -92,6 +92,7 @@
   <main:Go2bpp vg-if='c.Open == "go2bpp"' :ChangePage="c.ChangePage"></main:Go2bpp>
   <main:Bpp vg-if='c.Open == "bpp"'></main:Bpp>
   <main:Ytd vg-if='c.Open == "ytd"'></main:Ytd>
+  <main:Eod vg-if='c.Open == "eod"'></main:Eod>
 </div>
 
 <script type="application/x-go">
@@ -109,6 +110,7 @@ var pages map[string]map[string]string = map[string]map[string]string{
     "ideas": "Ideas",
     "wiki": "Elemental Wiki",
     "ldb": "Leaderboard",
+    "eod": "EoD",
   },
   "Puzzles": map[string]string{
     "letterboxed": "LetterBoxed",
