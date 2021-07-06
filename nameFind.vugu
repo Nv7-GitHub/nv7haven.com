@@ -14,7 +14,7 @@
 
   <h2 class="mt-5">Progress</h2>
   <p class="lead">
-    You have found <span vg-content="formatInt(int(c.Found))"></span> out of <span vg-content="formatInt(int(c.Total))"></span> names.
+    You have found the names of <span vg-content="formatInt(int(c.Found))"></span> people, out of a total of <span vg-content="formatInt(int(c.Total))"></span> people.
   </p>
   <div class="progress" style="height: 20px;">
     <div class="progress-bar" role="progressbar" :style='"width: " + fmt.Sprintf("%f", c.Found/c.Total*100) + "%;"' :aria-valuenow="strconv.Itoa(int(c.Found/c.Total*100))" aria-valuemin="0" aria-valuemax="100"></div>
