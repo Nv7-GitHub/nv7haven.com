@@ -1,0 +1,225 @@
+<div class="container text-center mt-3">
+  <h1>NameFind</h1>
+  <p class="lead">
+    How many names can you name? 
+  </p>
+  <span class="text-secondary">If you want to cheat, you can find the most common names <a href="#" @click='c.ChangePage("names", "Fun", c.Ee)'>here</a>.</span>
+  <div class="overlay" vg-if="c.Loading"><div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div></div>
+
+  <form class="input-group mt-3 has-validation" action="#">
+    <vgform:Input :Value='vgform.StringPtrDefault(&c.Input, "")' :class='"form-control" + c.FeedbackInputClass'></vgform:Input>
+    <button class="btn btn-primary" @click="go c.AddName(event.EventEnv())" .disabled="c.ButtonLoading">Go!</button>
+    <div :class="c.FeedbackClass" vg-if="c.HasFeedback" vg-content="c.Feedback"></div>
+  </form>
+
+  <h2 class="mt-5">Progress</h2>
+  <div class="progress" style="height: 20px;">
+    <div class="progress-bar" role="progressbar" :style='"width: " + fmt.Sprintf("%f", c.Found/c.Total*100) + "%;"' :aria-valuenow="strconv.Itoa(int(c.Found/c.Total*100))" aria-valuemin="0" aria-valuemax="100"></div>
+  </div>
+
+  <h2 class="mt-5">Names Found</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Name</th>
+        <th scope="col">Population</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr vg-for="i, row := range c.Rows">
+        <th scope="row" vg-content="i+1"></th>
+        <td vg-content="row.Name"></td>
+        <td vg-content="row.Count"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<script type="application/x-go">
+import "sort"
+
+type NameFind struct {
+  Loading bool `vugu:"data"`
+  Input string `vugu:"data"`
+  ButtonLoading bool `vugu:"data"`
+
+  Rows []nameFindRow `vugu:"data"`
+  Total float64 `vugu:"data"`
+  Found float64 `vugu:"data"`
+
+  HasFeedback bool `vugu:"data"`
+  Feedback string `vugu:"data"`
+  FeedbackClass string `vugu:"data"`
+  FeedbackInputClass string `vugu:"data"`
+
+  Ee vugu.EventEnv
+  ChangePage func(newPage string, newTab string, ee vugu.EventEnv)
+
+  Db sjs.Value
+}
+
+type nameFindRow struct {
+  Name string
+  Count int
+}
+
+func NewWrapper(fn func()) sjs.Func {
+  return sjs.FuncOf(func(this sjs.Value, args []sjs.Value) interface{} {
+    fn()
+    return nil
+  })
+}
+func NewWrapperArgs(fn func(...sjs.Value)) sjs.Func {
+  return sjs.FuncOf(func(this sjs.Value, args []sjs.Value) interface{} {
+    fn(args...)
+    return nil
+  })
+}
+
+func (c *NameFind) SortRows() {
+  sort.Slice(c.Rows, func(i, j int) bool {
+    return c.Rows[i].Count > c.Rows[j].Count
+  })
+}
+
+type nameCountResult struct {
+	Name  string
+	Count int
+}
+
+func (c *NameFind) AddName(ee vugu.EventEnv) {
+  ee.Lock()
+  c.ButtonLoading = true
+  ee.UnlockRender()
+
+  // Check if name is in DB already
+  countRaw, code := getCode(prefix + "name_count/" + url.PathEscape(c.Input))
+  if code != 200 {
+    ee.Lock()
+    c.HasFeedback = true
+    c.Feedback = "That name is not in our database!"
+    c.FeedbackClass = "invalid-feedback"
+    c.FeedbackInputClass = " is-invalid"
+    c.ButtonLoading = false
+    ee.UnlockRender()
+    return
+  }
+  var res nameCountResult
+  json.Unmarshal([]byte(countRaw), &res)
+
+
+  transaction := c.Db.Call("transaction", []interface{}{"namefind"}, "readonly")
+  store := transaction.Call("objectStore", "namefind")
+  req := store.Call("get", res.Name)
+  req.Set("onsuccess", NewWrapperArgs(func(args ...sjs.Value) {
+    result := req.Get("result")
+
+    if result.IsUndefined() {
+      // If name is not in DB, add it
+      transaction := c.Db.Call("transaction", []interface{}{"namefind"}, "readwrite")
+      store := transaction.Call("objectStore", "namefind")
+      req := store.Call("add", map[string]interface{}{
+        "name": res.Name,
+        "count": res.Count,
+      })
+      req.Set("onsuccess", NewWrapper(func() {
+        ee.Lock()
+        c.HasFeedback = true
+        c.Feedback = "New name found!"
+        c.FeedbackClass = "valid-feedback"
+        c.FeedbackInputClass = " is-valid"
+        c.ButtonLoading = false
+        c.Rows = append(c.Rows, nameFindRow{
+          Name: res.Name,
+          Count: res.Count,
+        })
+        c.SortRows()
+        c.Found += float64(res.Count)
+        c.Input = ""
+        ee.UnlockRender()
+      }))
+      return
+    }
+
+    // Name is in DB
+    ee.Lock()
+    c.HasFeedback = true
+    c.Feedback = "You already did that name!"
+    c.FeedbackClass = "invalid-feedback"
+    c.FeedbackInputClass = " is-invalid"
+    c.ButtonLoading = false
+    ee.UnlockRender()
+  }))
+}
+
+func (c *NameFind) Init(ctx vugu.InitCtx) {
+  c.Ee = ctx.EventEnv()
+  c.Loading = true
+  req := sjs.Global().Get("indexedDB").Call("open", "namefind", 1)
+
+  // Open DB
+  req.Set("onupgradeneeded", NewWrapperArgs(func(args ...sjs.Value) {
+    db := args[0].Get("target").Get("result")
+    objStore := db.Call("createObjectStore", "namefind", map[string]interface{}{
+      "keyPath": "name",
+    })
+    objStore.Call("createIndex", "name", "name", map[string]interface{}{
+      "unique": true,
+    })
+    objStore.Call("createIndex", "count", "count", map[string]interface{}{
+      "unique": false,
+    })
+    fmt.Println("Initialized Database!")
+  }))
+
+  req.Set("onsuccess", NewWrapperArgs(func(args ...sjs.Value) {
+    c.Db = args[0].Get("target").Get("result")
+    fmt.Println("Opened Database!")
+
+    // Load database into rows
+    transaction := c.Db.Call("transaction", []interface{}{"namefind"}, "readonly")
+    store := transaction.Call("objectStore", "namefind")
+    req := store.Call("getAll")
+    req.Set("onsuccess", NewWrapperArgs(func(args ...sjs.Value) {
+      res := args[0].Get("target").Get("result")
+
+      for i := 0; i < res.Get("length").Int(); i++ {
+        count := res.Get(strconv.Itoa(i)).Get("count").Int()
+        c.Found += float64(count)
+        c.Rows = append(c.Rows, nameFindRow{
+          Name: res.Get(strconv.Itoa(i)).Get("name").String(),
+          Count: count,
+        })
+      }
+      c.Ee.Lock()
+      c.SortRows()
+      c.Ee.UnlockRender()
+    }))
+
+    if c.Total != 0 {
+      c.Ee.Lock()
+      c.Loading = false
+      c.Ee.UnlockRender()
+    }
+  }))
+
+  // Get Total
+  total := js.Global().Get("localStorage").Call("getItem", "total")
+  if total.IsNull() {
+    totalVal := get(prefix + "name_count/all")
+    tot, _ := strconv.Atoi(totalVal)
+
+    c.Ee.Lock()
+    c.Loading = false
+    c.Total = float64(tot)
+    c.Ee.UnlockRender()
+
+    js.Global().Get("localStorage").Call("setItem", "total", tot)
+  } else {
+    val := total.String()
+    tot, _ := strconv.Atoi(val)
+    c.Total = float64(tot)
+  }
+}
+</script>

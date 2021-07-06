@@ -93,6 +93,7 @@
   <main:Bpp vg-if='c.Open == "bpp"'></main:Bpp>
   <main:Ytd vg-if='c.Open == "ytd"'></main:Ytd>
   <main:Eod vg-if='c.Open == "eod"'></main:Eod>
+  <main:NameFind vg-if='c.Open == "namefind"' :ChangePage="c.ChangePage"></main:NameFind>
 </div>
 
 <script type="application/x-go">
@@ -121,6 +122,7 @@ var pages map[string]map[string]string = map[string]map[string]string{
     "hella": "Hella",
     "crush": "UniCrush",
     "names": "Names",
+    "namefind": "NameFind",
   },
   "Dev": map[string]string{
     "go2bpp": "Go2b++",
