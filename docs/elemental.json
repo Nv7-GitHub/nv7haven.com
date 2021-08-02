@@ -2,8 +2,8 @@
   "type":"nv7",
   "name":"Nv7's Elemental",
   "description":"Nv7's Server for Elemental 4",
-  "serverVersion":"2.0.3",
+  "serverVersion":"2.1.0",
   "icon":"https://nv7haven.tk/elemental/icon.png",
-  "databaseURL": "https://elementalserver-8c6d0.firebaseio.com",
-  "prefix": "https://api.nv7haven.tk/"
+  "prefix": "https://api.nv7haven.tk/",
+  "grpc": "https://rpc.nv7haven.tk/"
 }
