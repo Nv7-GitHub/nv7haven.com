@@ -1,0 +1,9 @@
+{
+    "type": "nv7anarchy",
+    "name": "Nv7's Anarchy",
+    "description": "Nv7's Anarchy Server",
+    "serverVersion": "1.0.0",
+    "icon": "https://nv7haven.tk/elemental/icon.png",
+    "prefix": "https://api.nv7haven.tk/",
+    "grpc": "https://rpc.nv7haven.tk/"
+}
