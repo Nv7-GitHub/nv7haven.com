@@ -71,7 +71,7 @@ import (
   "github.com/vugu/vugu/vgform"
 )
 
-var prefix = "https://api.nv7haven.tk/"
+var prefix = "https://api.nv7haven.com/"
 
 type BestEver struct {
   Loading bool `vugu:"data"`

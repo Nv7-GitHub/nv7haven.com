@@ -103,7 +103,7 @@ func (c *Ldb) Refresh(ee vugu.EventEnv) {
   if c.Order == "Ascending" {
     order = "1"
   }
-  txt := get("https://api.nv7haven.tk/ldb_query/" + order + "/" + strings.ToLower(c.Kind) + "/" + strconv.Itoa(c.Page))
+  txt := get("https://api.nv7haven.com/ldb_query/" + order + "/" + strings.ToLower(c.Kind) + "/" + strconv.Itoa(c.Page))
   err := json.Unmarshal([]byte(txt), &c.Ret)
   handle(err)
 

@@ -2,7 +2,7 @@
   <h1>WordSearch</h1>
   <p class="lead" vg-if="!c.OverrideMessage">
     This is a word search solver made by Nv7! If you want, you can find the source code in
-    <a href="https://github.com/Nv7-GitHub/nv7haven.tk/blob/master/wordSearch.go" target="_blank">on GitHub</a>
+    <a href="https://github.com/Nv7-GitHub/nv7haven.com/blob/master/wordSearch.go" target="_blank">on GitHub</a>
     and some example word searches
     <a href="#" @click="c.LoadExample()">here</a>!
   </p>

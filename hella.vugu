@@ -33,7 +33,7 @@ func (c *Hella) Calculate(ee vugu.EventEnv) {
   c.Loading = true
   ee.UnlockRender()
   
-  c.Output = get("https://api.nv7haven.tk/hella/" + url.PathEscape(c.Input))
+  c.Output = get("https://api.nv7haven.com/hella/" + url.PathEscape(c.Input))
 
   ee.Lock()
   c.Loading = false

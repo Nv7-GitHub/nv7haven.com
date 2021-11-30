@@ -107,7 +107,7 @@ func (c *Ytd) Download(ee vugu.EventEnv) {
     c.Input = strings.Replace(c.Input, "https://www.youtube.com/watch?v=", "", 1)
   }
   
-  data, code := getCode("https://api.nv7haven.tk/youtube_url/" + c.Input)
+  data, code := getCode("https://api.nv7haven.com/youtube_url/" + c.Input)
   if code != 200 {
     ee.Lock()
     c.Loading = false
@@ -139,7 +139,7 @@ func (c *Ytd) DownloadFile(ur string, ee vugu.EventEnv, index int) {
   ee.UnlockRender()
 
 
-  sjs.Global().Call("fetch", "https://api.nv7haven.tk/http_get/", map[string]interface{}{
+  sjs.Global().Call("fetch", "https://api.nv7haven.com/http_get/", map[string]interface{}{
     "method": "POST",
     "body": ur,
   }).Call("then", sjs.FuncOf(func(this sjs.Value, p []sjs.Value) interface{} {

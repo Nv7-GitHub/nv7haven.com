@@ -3,7 +3,7 @@
   "name":"Nv7's Elemental",
   "description":"Nv7's Elemental Server",
   "serverVersion":"2.1.0",
-  "icon":"https://nv7haven.tk/elemental/icon.png",
-  "prefix": "https://api.nv7haven.tk/",
-  "grpc": "https://rpc.nv7haven.tk/"
+  "icon":"https://nv7haven.com/elemental/icon.png",
+  "prefix": "https://api.nv7haven.com/",
+  "grpc": "https://rpc.nv7haven.com/"
 }

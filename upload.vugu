@@ -72,14 +72,14 @@ func (c *Upload) UploadFile(ee vugu.EventEnv) {
       sjs.Global().Get("document").Call("getElementById", "customFile").Call("setAttribute", "type", "file")
       ee.Lock()
       c.Loading = false
-      c.Link = "https://api.nv7haven.tk/get_file/" + req.Get("responseText").String()
+      c.Link = "https://api.nv7haven.com/get_file/" + req.Get("responseText").String()
       c.Percent = 0
       c.Filename = "Choose a File"
       ee.UnlockRender()
     }
     return nil
   }))
-  req.Call("open", "post", "https://api.nv7haven.tk/upload")
+  req.Call("open", "post", "https://api.nv7haven.com/upload")
   req.Set("timeout", 99999999999999)
   req.Call("send", formDat)
 }

@@ -79,7 +79,7 @@ func (c *Ideas) Update(ee vugu.EventEnv) {
     c.Loading = true
     ee.UnlockRender()
   }
-  c.Request("https://api.nv7haven.tk/get_ideas/" + c.Sort, &c.Items)
+  c.Request("https://api.nv7haven.com/get_ideas/" + c.Sort, &c.Items)
   if ee != nil {
     ee.Lock()
     c.Loading = false
@@ -103,7 +103,7 @@ func (c *Ideas) Create(ee vugu.EventEnv) {
   ee.Lock()
   c.Loading = true
   ee.UnlockRender()
-  output := get("https://api.nv7haven.tk/new_idea/" + url.PathEscape(c.Title))
+  output := get("https://api.nv7haven.com/new_idea/" + url.PathEscape(c.Title))
   if string(output) != "" {
     js.Global().Call("alert", output)
   }
@@ -118,7 +118,7 @@ func (c *Ideas) Vote(ee vugu.EventEnv, index int, vote string) { // "0", "1"
   c.Loading = true
   ee.UnlockRender()
 
-  output := get("https://api.nv7haven.tk/update_idea/" + strconv.Itoa(c.Items[index].ID) + "/" + vote)
+  output := get("https://api.nv7haven.com/update_idea/" + strconv.Itoa(c.Items[index].ID) + "/" + vote)
   vals := strings.Split(string(output), "\n")
   if len(vals) != 2 {
     c.handle(errors.New(vals[0]), true)

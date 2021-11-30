@@ -1,4 +1,4 @@
-module github.com/Nv7-Github/nv7haven.tk
+module github.com/Nv7-Github/nv7haven.com
 
 go 1.16
 

@@ -54,7 +54,7 @@ func (c *Breakdown) Calculate(ee vugu.EventEnv) {
   c.Loading = true
   ee.UnlockRender()
   
-  resp := get("https://api.nv7haven.tk/breakdown/" + url.PathEscape(c.Input))
+  resp := get("https://api.nv7haven.com/breakdown/" + url.PathEscape(c.Input))
   err := json.Unmarshal([]byte(resp), &c.Output)
   if err != nil {
     panic(err)
