@@ -27,7 +27,7 @@
             <a :class='"nav-link " + c.isOpen("")' @click='c.ChangePage("", "", event.EventEnv())'>Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="https://discord.com/oauth2/authorize?client_id=788185365533556736&scope=bot%20applications.commands&permissions=2617388096&redirect_uri=https%3A%2F%2Fnv7haven.com">Nv7 Bot</a>
+            <a class="nav-link" href="https://discord.com/oauth2/authorize?client_id=788185365533556736&scope=bot%20applications.commands&permissions=2617388096">Nv7 Bot</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="https://urbandictionary.store/products/sweatshirt?defid=7227413">Bobby</a>
