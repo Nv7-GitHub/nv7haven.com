@@ -96,6 +96,7 @@
   <main:Ytd vg-if='c.Open == "ytd"'></main:Ytd>
   <main:Eod vg-if='c.Open == "eod"'></main:Eod>
   <main:NameFind vg-if='c.Open == "namefind"' :ChangePage="c.ChangePage"></main:NameFind>
+  <main:Chess vg-if='c.Open == "chess"'></main:Chess>
 </div>
 
 <script type="application/x-go">
@@ -125,6 +126,7 @@ var pages map[string]map[string]string = map[string]map[string]string{
     "crush": "UniCrush",
     "names": "Names",
     "namefind": "NameFind",
+    "chess": "Chess",
   },
   "Dev": map[string]string{
     "go2bpp": "Go2b++",

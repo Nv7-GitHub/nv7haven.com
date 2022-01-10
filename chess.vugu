@@ -1,0 +1,9 @@
+<div class="container text-center mt-3">
+  <h1>Chess</h1>
+  <iframe src="/chess.html" width="480" height="540"></iframe>
+</div>
+
+<script type="application/x-go">
+type Chess struct {
+}
+</script>
