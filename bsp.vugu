@@ -1,0 +1,82 @@
+<div class="container text-center mt-3">
+  <h1>B#</h1>
+  <p class="lead">
+    Run B# code here! Find the source and documentation for B# <a href="https://github.com/Nv7-Github/bsharp">here</a>!.
+  </p>
+
+  <h2>Code</h2>
+  <vgform:Textarea :Value='vgform.StringPtrDefault(&c.Src, "")' class="form-control"></vgform:Textarea>
+  <button class="btn btn-primary mt-2 mb-2" @click="c.Run()">Run!</button>
+  
+  <h2 vg-if='c.Output != ""'>Output</h2>
+  <code vg-content="vugu.HTML(c.Output)" vg-if='c.Output != ""'></code>
+</div>
+
+<script type="application/x-go">
+import (
+  "math/rand"
+
+  "github.com/Nv7-Github/bsharp/ir"
+  bsparser "github.com/Nv7-Github/bsharp/parser"
+  "github.com/Nv7-Github/bsharp/tokens"
+  "github.com/Nv7-Github/bsharp/backends/interpreter"
+)
+
+type Bsp struct {
+  Input string `vugu:"data"`
+  Src string `vugu:"data"`
+  Output string `vugu:"data"`
+}
+
+type fs struct{}
+
+func (*fs) Parse(f string) (*bsparser.Parser, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (c *Bsp) Run() {
+	rand.Seed(time.Now().UnixNano())
+
+  // Build IR
+  stream := tokens.NewStream("main.bsp", c.Src)
+	tok := tokens.NewTokenizer(stream)
+	err := tok.Tokenize()
+	if err != nil {
+		c.Output = err.Error()
+    return
+	}
+	parse := bsparser.NewParser(tok)
+	err = parse.Parse()
+	if err != nil {
+    c.Output = err.Error()
+    return
+	}
+	ir := ir.NewBuilder()
+	err = ir.Build(parse, &fs{})
+	if err != nil {
+    if len(ir.Errors) > 0 {
+      c.Output = ""
+      for _, err := range ir.Errors {
+        c.Output += err.Message + "\n"
+      }
+    } else {
+      c.Output = err.Error()
+    } 
+    return
+	}
+
+  // Run IR
+  out := &strings.Builder{}
+  interp := interpreter.NewInterpreter(ir.IR(), out)
+  err = interp.Run()
+  if err != nil {
+    c.Output = err.Error()
+    return
+  }
+  c.Output = out.String()
+}
+
+func (c *Bsp) Init(ctx vugu.InitCtx) {
+  c.Src = `[PRINT "Hello, World!"]`
+}
+</script>

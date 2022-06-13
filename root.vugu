@@ -97,6 +97,7 @@
   <main:Eod vg-if='c.Open == "eod"'></main:Eod>
   <main:NameFind vg-if='c.Open == "namefind"' :ChangePage="c.ChangePage"></main:NameFind>
   <main:Chess vg-if='c.Open == "chess"'></main:Chess>
+  <main:Bsp vg-if='c.Open == "bsp"'></main:Bsp>
 </div>
 
 <script type="application/x-go">
@@ -131,6 +132,7 @@ var pages map[string]map[string]string = map[string]map[string]string{
   "Dev": map[string]string{
     "go2bpp": "Go2b++",
     "bpp": "B++",
+    "bsp": "B#",
   },
 }
 var keys []string = make([]string, 0)
