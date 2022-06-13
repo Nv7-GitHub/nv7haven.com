@@ -1,7 +1,7 @@
 <div class="container text-center mt-3">
   <h1>LetterBoxed</h1>
   <p class="lead">
-   This is a program I wrote to solve <a href="https://www.nytimes.com/puzzles/letter-boxed">New York Times' "Letter Boxed" puzzle</a>. You can find a clean, commented version of the program <a href="https://github.com/Nv7-GitHub/FunRepository/blob/master/LetterBoxed/main.go">here</a>. The default values are from the Letter Boxed puzzle on 11/27/2020.
+   This is a program I wrote to solve <a href="https://www.nytimes.com/puzzles/letter-boxed">New York Times' "Letter Boxed" puzzle</a>. You can find a clean, commented version of the program <a href="https://github.com/Nv7-GitHub/FunRepository/blob/master/LetterBoxed/main.go">here</a>. The default values are from the Letter Boxed puzzle on June 12, 2022.
   </p>
   <span>
     <div class="form-group">
@@ -10,7 +10,7 @@
       <vgform:Input type="text" :Value="&vgform.StringPtr{&c.List3}" class="form-control mx-sm-1 mb-2"></vgform:Input>
       <vgform:Input type="text" :Value="&vgform.StringPtr{&c.List4}" class="form-control mx-sm-1 mb-2"></vgform:Input>
     </div>
-    <button class="btn btn-primary" @click="go c.solveLetterBoxed()">Solve</button>
+    <button class="btn btn-primary" @click="c.solveLetterBoxed()">Solve</button>
   </span>
 
   <p class="lead" vg-if="len(c.Output) > 0">
@@ -18,29 +18,25 @@
     Output
   </p>
 
-  <div class="table-responsive">
-    <table class="table" style="margin-bottom: 0px;" vg-for="_, val := range c.Output">
-      <tr>
-        <td vg-for="_, text := range val" vg-content="text"></td>
-      </tr>
-    </table>
-  </div>
+   <ul class="list-group">
+      <li class="list-group-item" vg-for="_, item := range c.Output" vg-content="item"></li>
+    </ul>
 </div>
 
 <script type="application/x-go">
 import (
   "strings"
+  _ "embed"
 
   "github.com/vugu/vugu/vgform"
 )
 
 type LetterBoxed struct {
-  Words []string
   List1 string `vugu: "data"`
   List2 string `vugu: "data"`
   List3 string `vugu: "data"`
   List4 string `vugu: "data"`
-  Output [][]string `vugu: "data"`
+  Output []string `vugu: "data"`
 }
 
 func handle(err error) {
@@ -49,13 +45,21 @@ func handle(err error) {
   }
 }
 
-func (c *LetterBoxed) Init(ctx vugu.InitCtx) {
-  wordData := get("/words.txt")
-  c.Words = strings.Split(string(wordData), "\n")
+//go:embed words.txt
+var wordData string
 
-  c.List1 = "rin"
-  c.List2 = "dsb"
-  c.List3 = "utk"
-  c.List4 = "acm"
+func (c *LetterBoxed) Init(ctx vugu.InitCtx) {
+  wordVals := strings.Split(string(wordData), "\n")
+	for _, word := range wordVals {
+		word = strings.ToLower(word)
+		if isValid(word) {
+			words = append(words, word)
+		}
+	}
+
+  c.List1 = "xie"
+  c.List2 = "mcn"
+  c.List3 = "ouy"
+  c.List4 = "lqr"
 }
 </script>
