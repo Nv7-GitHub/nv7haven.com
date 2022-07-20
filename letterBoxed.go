@@ -95,7 +95,10 @@ func (c *LetterBoxed) solveLetterBoxed() {
 	words = make([]string, 0)
 	for _, word := range old {
 		if isValid(word) {
-			words = append(words, word)
+			_, exists := c.Remove[word]
+			if !exists {
+				words = append(words, word)
+			}
 		}
 	}
 

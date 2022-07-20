@@ -19,7 +19,12 @@
   </p>
 
    <ul class="list-group">
-      <li class="list-group-item" vg-for="_, item := range c.Output" vg-content="item"></li>
+      <li class="list-group-item d-flex justify-content-between" vg-for="_, item := range c.Output">
+      <div class="p-0 m-0 flex-grow-1" vg-content="item" style="transform: translateY(20%);"></div> 
+      <button class="btn btn-danger" @click="c.RemoveFn(item)">
+        <i class="fa fa-trash"></i>
+      </button>
+    </li>
     </ul>
 </div>
 
@@ -36,6 +41,7 @@ type LetterBoxed struct {
   List2 string `vugu: "data"`
   List3 string `vugu: "data"`
   List4 string `vugu: "data"`
+  Remove map[string]struct{}
   Output []string `vugu: "data"`
 }
 
@@ -54,5 +60,11 @@ func (c *LetterBoxed) Init(ctx vugu.InitCtx) {
   c.List3 = "sul"
   c.List4 = "are"
   words = strings.Split(strings.ToLower(string(wordData)), "\n")
+  c.Remove = make(map[string]struct{})
+}
+
+func (c *LetterBoxed) RemoveFn(item string) {
+  c.Remove[item] = struct{}{}
+  c.solveLetterBoxed()
 }
 </script>
