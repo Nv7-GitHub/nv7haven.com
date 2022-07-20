@@ -1,7 +1,7 @@
 <div class="container text-center mt-3">
   <h1>LetterBoxed</h1>
   <p class="lead">
-   This is a program I wrote to solve <a href="https://www.nytimes.com/puzzles/letter-boxed">New York Times' "Letter Boxed" puzzle</a>. You can find a clean, commented version of the program <a href="https://github.com/Nv7-GitHub/FunRepository/blob/master/LetterBoxed/main.go">here</a>. The default values are from the Letter Boxed puzzle on June 12, 2022.
+   This is a program I wrote to solve <a href="https://www.nytimes.com/puzzles/letter-boxed">New York Times' "Letter Boxed" puzzle</a>. You can find a clean, commented version of the program <a href="https://github.com/Nv7-GitHub/FunRepository/blob/master/LetterBoxed/main.go">here</a>. The default values are from the Letter Boxed puzzle on July 19, 2022.
   </p>
   <span>
     <div class="form-group">
@@ -49,17 +49,10 @@ func handle(err error) {
 var wordData string
 
 func (c *LetterBoxed) Init(ctx vugu.InitCtx) {
-  wordVals := strings.Split(string(wordData), "\n")
-	for _, word := range wordVals {
-		word = strings.ToLower(word)
-		if isValid(word) {
-			words = append(words, word)
-		}
-	}
-
-  c.List1 = "xie"
-  c.List2 = "mcn"
-  c.List3 = "ouy"
-  c.List4 = "lqr"
+  c.List1 = "bzk"
+  c.List2 = "tqi"
+  c.List3 = "sul"
+  c.List4 = "are"
+  words = strings.Split(strings.ToLower(string(wordData)), "\n")
 }
 </script>

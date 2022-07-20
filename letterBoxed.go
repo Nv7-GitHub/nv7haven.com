@@ -1,6 +1,6 @@
 package main
 
-var sides = [4][3]byte{{'x', 'i', 'e'}, {'m', 'c', 'n'}, {'o', 'u', 'y'}, {'l', 'q', 'r'}}
+var sides [][]byte
 
 // getSideNum gets the index of the side the letter is on (used in isValid)
 func getSideNum(char byte) int {
@@ -82,7 +82,23 @@ func iddfs(v []int, maxLen int) []int {
 }
 
 func (c *LetterBoxed) solveLetterBoxed() {
+	// Sides
+	sides = [][]byte{
+		[]byte(c.List1),
+		[]byte(c.List2),
+		[]byte(c.List3),
+		[]byte(c.List4),
+	}
+
 	// Build letterMap (map of first letter of word to all words with that first letter)
+	old := words
+	words = make([]string, 0)
+	for _, word := range old {
+		if isValid(word) {
+			words = append(words, word)
+		}
+	}
+
 	letterMap = make(map[byte][]int)
 	for i, word := range words {
 		_, exists := letterMap[word[0]]
