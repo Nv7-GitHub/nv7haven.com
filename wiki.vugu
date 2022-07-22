@@ -94,7 +94,7 @@ func (c *Wiki) Search(ee vugu.EventEnv) {
     ee.UnlockRender()
   }
   
-  output := get("https://api.nv7haven.com/search_elems/" + url.PathEscape(c.SearchQuery + "%"))
+  output := get("https://nv7haven.nv7haven.com/search_elems/" + url.PathEscape(c.SearchQuery + "%"))
   err := json.Unmarshal([]byte(output), &c.Results)
   if err != nil {
     panic(err)
@@ -112,20 +112,20 @@ func (c *Wiki) Open(name string, ee vugu.EventEnv) {
   c.Loading = true
   ee.UnlockRender()
 
-  output := get("https://api.nv7haven.com/get_elem/" + url.PathEscape(name))
+  output := get("https://nv7haven.nv7haven.com/get_elem/" + url.PathEscape(name))
   err := json.Unmarshal([]byte(output), &c.Element)
   if err != nil {
     panic(err)
   }
 
   if len(c.Element.Parents) == 2 {
-    output = get("https://api.nv7haven.com/get_elem/" + url.PathEscape(c.Element.Parents[0]))
+    output = get("https://nv7haven.nv7haven.com/get_elem/" + url.PathEscape(c.Element.Parents[0]))
     err = json.Unmarshal([]byte(output), &c.Parent1)
     if err != nil {
       panic(err)
     }
 
-    output = get("https://api.nv7haven.com/get_elem/" + url.PathEscape(c.Element.Parents[1]))
+    output = get("https://nv7haven.nv7haven.com/get_elem/" + url.PathEscape(c.Element.Parents[1]))
     err = json.Unmarshal([]byte(output), &c.Parent2)
     if err != nil {
       panic(err)

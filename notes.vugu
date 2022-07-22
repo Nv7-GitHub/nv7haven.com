@@ -83,7 +83,7 @@ func (c *Notes) Search(ee vugu.EventEnv) {
     ee.UnlockRender()
   }
   
-  output := get("https://api.nv7haven.com/note_search/" + url.PathEscape(c.SearchQuery + "%"))
+  output := get("https://nv7haven.nv7haven.com/note_search/" + url.PathEscape(c.SearchQuery + "%"))
   err := json.Unmarshal([]byte(output), &c.Results)
   if err != nil {
     panic(err)
@@ -101,7 +101,7 @@ func (c *Notes) NewNote(ee vugu.EventEnv) {
   c.Loading = true
   ee.UnlockRender()
   
-  output := get("https://api.nv7haven.com/new_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password))
+  output := get("https://nv7haven.nv7haven.com/new_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password))
   if string(output) != "" {
     panic(errors.New(string(output)))
   }
@@ -119,7 +119,7 @@ func (c *Notes) Open(ee vugu.EventEnv) bool {
   c.Loading = true
   ee.UnlockRender()
   
-  output, status := getCode("https://api.nv7haven.com/get_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password))
+  output, status := getCode("https://nv7haven.nv7haven.com/get_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password))
   if status == 500 {
     return false
   }
@@ -138,7 +138,7 @@ func (c *Notes) OpenNote(name string, ee vugu.EventEnv) {
   ee.UnlockRender()
 
   c.Name = name
-  output := get("https://api.nv7haven.com/has_password/" + url.PathEscape(c.Name))
+  output := get("https://nv7haven.nv7haven.com/has_password/" + url.PathEscape(c.Name))
   if string(output) == "1" {
     c.Password = js.Global().Call("prompt", "What is the password?").String()
     working := c.Open(ee)
@@ -159,7 +159,7 @@ func (c *Notes) Save(ee vugu.EventEnv) {
   c.Loading = true
   ee.UnlockRender()
 
-  output := post("https://api.nv7haven.com/change_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password), "text/plain", bytes.NewBuffer([]byte(c.NoteData)))
+  output := post("https://nv7haven.nv7haven.com/change_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password), "text/plain", bytes.NewBuffer([]byte(c.NoteData)))
   if string(output) != "" {
     panic(errors.New(string(output)))
   }
@@ -174,7 +174,7 @@ func (c *Notes) Delete(ee vugu.EventEnv) {
   c.Loading = true
   ee.UnlockRender()
 
-  output := get("https://api.nv7haven.com/delete_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password))
+  output := get("https://nv7haven.nv7haven.com/delete_note/" + url.PathEscape(c.Name) + "/" + url.PathEscape(c.Password))
   if string(output) != "" {
     panic(errors.New(string(output)))
   }
